@@ -59,8 +59,8 @@ void desirializer_task(void *pvParameters);
 void sendStartEvents();
 void clearQueue();
 void killedTasks();
-void initBaseSystem();
 
+void initBaseSystem();
 void overrideQueues();
 
 #endif /* MAIN_MAIN_HPP_ */
