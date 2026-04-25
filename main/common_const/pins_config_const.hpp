@@ -1,0 +1,49 @@
+/*
+ * pins_config_const.hpp
+ *
+ *  Created on: 15 апр. 2026 г.
+ *      Author: Kirill
+ */
+
+#ifndef MAIN_COMMON_CONST_PINS_CONFIG_CONST_HPP_
+#define MAIN_COMMON_CONST_PINS_CONFIG_CONST_HPP_
+
+	// MEMORY
+	#define MEMORY_PIN_NUM_MOSI 23
+	#define MEMORY_PIN_NUM_MISO 19
+	#define MEMORY_PIN_NUM_SCLK 18
+	#define MEMORY_PIN_NUM_CS   5
+	
+	// CLOCK
+	#define CLOCK_ENA_PIN 26
+	#define CLOCK_CLK_PIN 14
+	#define CLOCK_DAT_PIN 27
+	
+	// DUST
+	#define DUST_LED_1_PIN  GPIO_NUM_25
+	#define DUST_1_ADC_CHANEL ADC_CHANNEL_6
+	
+	#define DUST_LED_2_PIN GPIO_NUM_32
+	#define DUST_2_ADC_CHANEL ADC_CHANNEL_3
+	
+	// TERM
+	#define TEMP_SENSOR_1_PIN 4
+	#define TEMP_SENSOR_2_PIN 16
+	#define TEMP_SENSOR_3_PIN 17
+	
+	// BUZZER
+	#define BUZZER_PIN 12
+	
+	// RGB
+	#define RED_COLOR_PIN   15
+	#define GREEN_COLOR_PIN 13
+	#define BLUE_COLOR_PIN  2
+	
+	// OBSERVER
+	#define VOLTAGE_OBSERVER_PIN GPIO_NUM_36
+	
+	// GND
+	#define ON_GND 21
+	
+	
+#endif /* MAIN_COMMON_CONST_PINS_CONFIG_CONST_HPP_ */
