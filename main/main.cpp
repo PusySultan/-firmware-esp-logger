@@ -1,71 +1,35 @@
 
 #include "main.hpp"
 #include "EventMenager.hpp"
+#include "memory_w25q_const.hpp"
 #include "nvs_flash.h"
 #include "EventTypes.hpp"
 #include "DateTimeSensor.hpp"
 #include "pins_config_const.hpp"
+#include "main_tasks.cpp"
+#include <stdlib.h>
 
 extern "C" void app_main(void)
 {
-	initBaseSystem();
+	wakeup =  esp_sleep_get_wakeup_cause();
 	
-	xTaskCreate(network_task,
-			    "Network task",
-			    8192,
-			    NULL,
-			    8,
-			    &networkTaskHundle);
-			    
-	xTaskCreate(storage_task,
-			    "Storage task",
-			    4096,
-			    NULL,
-			    8,
-			    &storageTaskHundle);
-			    
-	xTaskCreate(sensors_task,
-			    "Sensors task",
-			    4096,
-			    NULL,
-			    8,
-			    &sensorsTaskHundle);
-			    
-	xTaskCreate(upload_task,
-			    "Upload task",
-			    4096,
-			    NULL,
-			    8,
-			    &uploadTaskHundle);
-			    
-	xTaskCreate(create_task,
-			    "Create task",
-			    4096,
-			    NULL,
-			    8,
-			    &createTaskHundle);
-			    
-	xTaskCreate(desirializer_task,
-			    "Deserialize task",
-			    4096,
-			    NULL,
-			    8,
-			    &serverMsgProcessorTaskHundle);
-			    
-	xTaskCreate(event_task,
-			    "Event task",
-			    2048,
-			    NULL,
-			    8,
-			    &eventTaskHundle);
-			    
+	if(wakeup == ESP_SLEEP_WAKEUP_EXT0) {
+		startSpecialInit();
+		goto end;	
+	}
+	
+	startBaseInit();
+	createTasks();
+
 	while(true)
 	{
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 	}
+
+	end:;
 }
 
-void initBaseSystem()
+void startBaseInit()
 {
 	nvs_flash_init();
 	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
@@ -140,5 +104,37 @@ void clearQueue()
 	vQueueDelete(creater_event_queue);
 	vQueueDelete(serverMsgProcessor_event_queue);
 	vQueueDelete(event_queue);
+}
+
+void byby()
+{
+	esp_sleep_enable_ext0_wakeup((gpio_num_t)WAKEUP_PIN, 1);
+	esp_deep_sleep_start();
+}
+
+void startSpecialInit()
+{
+	storage = new Storage();
+	storage_event_queue = xQueueCreate(1,  sizeof(storage_cmd_t*));
+	storage -> overrideInternalQueue(&storage_event_queue);
+
+	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
+}
+
+void regCaseOpening()
+{
+	DateTime dateTime;
+	DateTimeSensor :: getInstance().ds1302_getDateTime(&dateTime);
+
+	storage_cmd_t* storage_cmd = new storage_cmd_t;
+		
+	storage_cmd -> event_type = WRITE_BY_TRANS;
+	storage_cmd -> sync_semaphore = NULL;
+	storage_cmd -> data_size  = 1;
+	storage_cmd -> sectorAddr = ADDR_EVENT_CASE_OPEN;
+	
+	memcpy(storage_cmd -> data[0].data, &dateTime, sizeof(dateTime));
+
+	xQueueSend(storage_event_queue, storage_cmd,  pdMS_TO_TICKS(30000));
 }
 

@@ -4,7 +4,6 @@
 idf_component_register(
     SRCS
         main.cpp
-		main_tasks.ccp
         
         storage/Storage.cpp
         uploader/Uploader.cpp

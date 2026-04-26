@@ -53,6 +53,7 @@ class Uploader final
 			{TEMP_SENSOR_C_ID,  UINT32_MAX},
 			{DUST_SENSOR_1_ID, UINT32_MAX},
 			{DUST_SENSOR_2_ID,  UINT32_MAX},
+			{CASE_OPEN_SENSOR_ID, UINT32_MAX}
 		};
 		
 		// Мапа состояний
@@ -64,6 +65,7 @@ class Uploader final
 			{TEMP_SENSOR_C_ID, 	false},
 			{DUST_SENSOR_1_ID, 	false},
 			{DUST_SENSOR_2_ID,  	false},
+			{CASE_OPEN_SENSOR_ID, false}
 		};
 		
 		bool checkAllStates();

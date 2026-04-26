@@ -7,6 +7,7 @@
 
 #include "W25Q128.hpp"
 #include "pins_config_const.hpp"
+#include "soc/gpio_num.h"
 
 W25Q128::W25Q128 ()
 {

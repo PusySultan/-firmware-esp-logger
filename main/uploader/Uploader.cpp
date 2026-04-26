@@ -264,7 +264,7 @@ void Uploader :: uploadAddrById(SensorsID id)
     uint32_t currentPage = leftPage;
     uint8_t flag = 0;
 
-    while (leftPage <= rightPage)
+    while (leftPage < rightPage)
     {
         currentPage = leftPage + (rightPage - leftPage) / 2;
         uint32_t flagAddr = currentPage * SECTOR_SIZE + (SECTOR_SIZE - 1);   // последний байт страницы

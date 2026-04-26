@@ -44,6 +44,8 @@
 	
 	// GND
 	#define ON_GND 21
-	
+
+	// ESP WAKEUP PIN
+	#define WAKEUP_PIN 0
 	
 #endif /* MAIN_COMMON_CONST_PINS_CONFIG_CONST_HPP_ */

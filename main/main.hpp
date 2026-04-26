@@ -56,11 +56,15 @@ void event_task(void *pvParameters);
 void desirializer_task(void *pvParameters);
 
 // Остальные функции
+void startBaseInit();
 void sendStartEvents();
+void createTasks();
+
+void startSpecialInit();
+void regCaseOpening();
+
 void clearQueue();
 void killedTasks();
-
-void initBaseSystem();
-void overrideQueues();
+void byby();    /// уход ко сну
 
 #endif /* MAIN_MAIN_HPP_ */

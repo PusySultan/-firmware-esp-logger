@@ -8,6 +8,58 @@
 
 #include "main.hpp"
 
+void createTasks()
+{
+		xTaskCreate(network_task,
+			    "Network task",
+			    8192,
+			    NULL,
+			    8,
+			    &networkTaskHundle);
+			    
+	xTaskCreate(storage_task,
+			    "Storage task",
+			    4096,
+			    NULL,
+			    8,
+			    &storageTaskHundle);
+			    
+	xTaskCreate(sensors_task,
+			    "Sensors task",
+			    4096,
+			    NULL,
+			    8,
+			    &sensorsTaskHundle);
+			    
+	xTaskCreate(upload_task,
+			    "Upload task",
+			    4096,
+			    NULL,
+			    8,
+			    &uploadTaskHundle);
+			    
+	xTaskCreate(create_task,
+			    "Create task",
+			    4096,
+			    NULL,
+			    8,
+			    &createTaskHundle);
+			    
+	xTaskCreate(desirializer_task,
+			    "Deserialize task",
+			    4096,
+			    NULL,
+			    8,
+			    &serverMsgProcessorTaskHundle);
+			    
+	xTaskCreate(event_task,
+			    "Event task",
+			    4096,
+			    NULL,
+			    8,
+			    &eventTaskHundle);
+}
+
 void network_task(void *pvParameters)
 {	
 	network_cmd_t* cmd;
