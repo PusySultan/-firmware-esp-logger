@@ -244,8 +244,13 @@ void SensorMenager :: createSensor(SensorsID id)
 		return;
 	}
 	
-	printf("create new dust sensor: %i (SensorMenager.createSensor)\n", static_cast<int>(id));
+	if(id > 4 && id < 7)
+	{
+			printf("create new dust sensor: %i (SensorMenager.createSensor)\n", static_cast<int>(id));
 		this -> sensorsMap[id] = new DustSensor(id);
+	}
+
+	// todo create CaseOpen Sensor
 }
 
 uint32_t SensorMenager :: getSensorIntervalById(SensorsID id)
