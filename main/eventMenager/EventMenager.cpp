@@ -4,6 +4,8 @@
  *  Created on: 13 апр. 2026 г.
  *      Author: Kirill
  */
+#include "CaseOpeningEvent.hpp"
+#include "EventTypes.hpp"
 #include "driver/gpio.h"
 #include "convertFunc.hpp"
 #include "NetworkTypes.hpp"
@@ -22,14 +24,10 @@ QueueHandle_t* EventMenager :: upload_event_queue;
 QueueHandle_t* EventMenager :: network_event_queue;
 QueueHandle_t* EventMenager :: create_event_queue;
 QueueHandle_t* EventMenager :: serverMsgProcessor_event_queue;
-event_cmd_t* EventMenager :: isr_event;
 
 EventMenager :: EventMenager ()
 {
-	isr_event = new event_cmd_t;
-	
 	fillFunctionMap();
-	createVoltageObserver();
 }
 
 EventMenager :: ~EventMenager ()
@@ -65,12 +63,12 @@ void EventMenager :: fillFunctionMap()
 				
 		this -> saveEnableTime();
 		
+		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_VOLTAGE_OFF_PIN, event_queue);
+
 		this -> createSensor(TEMP_SENSOR_1_ID);
 		this -> createSensor(TEMP_SENSOR_2_ID);
 		// this -> createSensor(TEMP_SENSOR_3_ID);
 		// this -> createSensor(TEMP_SENSOR_C_ID);
-		this -> createSensor(DUST_SENSOR_1_ID);
-		this -> createSensor(CASE_OPEN_SENSOR_ID);
 		// this -> createSensor(DUST_SENSOR_2_ID);
 		
 		this -> initNetwork();
@@ -102,37 +100,12 @@ void EventMenager :: fillFunctionMap()
 		this -> killStorage();
 		delete cmd;
 	};	
-}
 
-void IRAM_ATTR  EventMenager :: sensor_isr_handler(void* arg)
-{
-	// Очищаем флаг прерывания GPIO
-    // gpio_ll_clear_intr_status(GPIO_PIN_MASK[VOLTAGE_OBSERVER_PIN]);
-    
-	gpio_intr_disable(VOLTAGE_OBSERVER_PIN);
-		
-	isr_event -> event_type = DEVICE_EVENT_OFF;
-		
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xQueueSendFromISR(*event_queue, &isr_event, &xHigherPriorityTaskWoken);
-}
-
-void EventMenager :: createVoltageObserver()
-{	
-	return; 
-	gpio_config_t gp_config = {
-		
-		.pin_bit_mask = (1ULL << VOLTAGE_OBSERVER_PIN),
-		.mode = GPIO_MODE_INPUT,
-		.pull_up_en = GPIO_PULLUP_DISABLE,
-		.pull_down_en = GPIO_PULLDOWN_DISABLE,
-		.intr_type = GPIO_INTR_NEGEDGE		// Прерывание по низкому уровню
+	this -> eventProcessors[CASE_OPENING_EVENT] = [](event_cmd_t* cmd)
+	{
+		// todo
+		printf("\nCASE IS OPEN\n");	
 	};
-	
-	gpio_config(&gp_config);
-	
-	gpio_install_isr_service(0);
-	gpio_isr_handler_add(VOLTAGE_OBSERVER_PIN, sensor_isr_handler, NULL);
 }
 
 void EventMenager :: overrideInternalQueue(QueueHandle_t* queue)
@@ -335,7 +308,6 @@ void EventMenager :: killNetwork()
 	
 	delete kill_process_network_cmd;
 }
-
 
 void EventMenager :: initUpload()
 {

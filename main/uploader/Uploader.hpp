@@ -44,7 +44,7 @@ class Uploader final
 		// Мапа функций обработки 
 		std::map<uint8_t, func> functionMap;
 		
-		// Мапа адресов загрузки
+		// Мапа адресов загрузки (датчики и состояния)
 		std::map<SensorsID, uint32_t> uploadAddr
 		{
 			{TEMP_SENSOR_1_ID,  UINT32_MAX},
@@ -58,14 +58,14 @@ class Uploader final
 		
 		// Мапа состояний
 		std::map<SensorsID, bool> uploadStateById
-		{
-			{TEMP_SENSOR_1_ID,  	false},	// true - все данные загружены для данного датчика
+		{	// true - все данные загружены для данного датчика
+			{TEMP_SENSOR_1_ID,  	false},
 			{TEMP_SENSOR_2_ID,  	false},
 			{TEMP_SENSOR_3_ID,  	false},
-			{TEMP_SENSOR_C_ID, 	false},
-			{DUST_SENSOR_1_ID, 	false},
+			{TEMP_SENSOR_C_ID, 		false},
+			{DUST_SENSOR_1_ID, 		false},
 			{DUST_SENSOR_2_ID,  	false},
-			{CASE_OPEN_SENSOR_ID, false}
+			{CASE_OPEN_SENSOR_ID, 	false}
 		};
 		
 		bool checkAllStates();

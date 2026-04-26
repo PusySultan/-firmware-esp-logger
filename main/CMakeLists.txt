@@ -9,8 +9,12 @@ idf_component_register(
         uploader/Uploader.cpp
         memoryW25Q/W25Q128.cpp
         dateTime/DateTimeSensor.cpp
-    	eventMenager/EventMenager.cpp
     	msgCreater/MessageCreater.cpp
+    	
+    	eventMenager/EventMenager.cpp
+    	eventMenager/events/IEvent.cpp
+    	eventMenager/events/IEvent.cpp
+    	eventMenager/events/CaseOpeningEvent.cpp
     	
     	sensor/ISensor.cpp
     	sensor/ds18b20/TermoSensor.cpp
@@ -33,7 +37,9 @@ idf_component_register(
     	dateTime
     	msgCreater
     	memoryW25Q
+    	
     	eventMenager
+    	eventMenager/events
     	
     	msgFromServerProcessors
     	msgFromServerProcessors/collectionProcessor

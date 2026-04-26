@@ -12,6 +12,7 @@
 #include <functional>
 #include "DateTime.hpp"
 #include "EventTypes.hpp"
+#include "IEvent.hpp"
 #include "SensorTypes.hpp"
 #include "freertos/FreeRTOS.h"
 
@@ -33,6 +34,8 @@ class EventMenager final
 		void static overrideCreateQueue(QueueHandle_t* queue);
 		void static overrideSerMsgProcessQueue(QueueHandle_t* queue);
 
+		IEvent* caseOpeningEvent;
+
 		bool getKillStatus() {return this -> KILL_PROCESS_FLSG;}
 			  		
 	private:
@@ -43,18 +46,23 @@ class EventMenager final
 		static QueueHandle_t* network_event_queue;
 		static QueueHandle_t* create_event_queue;
 		static QueueHandle_t* serverMsgProcessor_event_queue;
-		
-		static event_cmd_t* isr_event;
-		static void IRAM_ATTR sensor_isr_handler(void* arg);
-		
+	
+		IEvent* _caseOpeningEvent;
+		IEvent* _voltageOffEvent;
+
 		DateTime enebleTime;
 		DateTime disableTime;
+
 		bool KILL_PROCESS_FLSG = false;
+
 		std::map<event_type_t, func> eventProcessors;
 
 		void connectGND();
 		void fillFunctionMap();
-		
+	
+		void initNetwork();
+		void createSensor(SensorsID);
+
 		void killStorage();
 		void killNetwork();
 		void initUpload();
@@ -62,11 +70,7 @@ class EventMenager final
 		void killSensors();
 		void killCreater();
 		void killMsgProcessor();
-		
-		void initNetwork();
-		void createSensor(SensorsID);
-		void createVoltageObserver();
-
+	
 		void saveEnableTime();
 		void saveDisabeTime();
 		void saveJobIntervalTime();

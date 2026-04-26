@@ -41,12 +41,12 @@ class SensorMenager final
 		// мапа адресов натроек id - addr
 		std::map<SensorsID, uint32_t> settingAddresMap = 
 		{
-		{TEMP_SENSOR_1_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_1_ADDR},
-		{TEMP_SENSOR_2_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_2_ADDR},
-		{TEMP_SENSOR_3_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_3_ADDR},
-		{TEMP_SENSOR_C_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_C_ADDR},
-		{DUST_SENSOR_1_ID, global_settings_t::getInstance().FREQ_DUST_SENSOR_1_ADDR},
-		{DUST_SENSOR_2_ID, global_settings_t::getInstance().FREQ_DUST_SENSOR_1_ADDR},
+			{TEMP_SENSOR_1_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_1_ADDR},
+			{TEMP_SENSOR_2_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_2_ADDR},
+			{TEMP_SENSOR_3_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_3_ADDR},
+			{TEMP_SENSOR_C_ID, global_settings_t::getInstance().FREQ_TEMP_SENSOR_C_ADDR},
+			{DUST_SENSOR_1_ID, global_settings_t::getInstance().FREQ_DUST_SENSOR_1_ADDR},
+			{DUST_SENSOR_2_ID, global_settings_t::getInstance().FREQ_DUST_SENSOR_1_ADDR},
 		};
 		
 		static QueueHandle_t* sensor_event_queue;

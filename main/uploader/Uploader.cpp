@@ -94,9 +94,9 @@ void Uploader :: fillFunctionMap()
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
 	
-	// Запуск из NETWORK
 	functionMap[START_GLOBAL_UPLOAD] = [this] (uploader_cmd_t* cmd) 
 	{
+		// Запуск из NETWORK
 		printf("START GLOBAL UPLOAD (Uploader.functionMap[START_GLOBAL_UPLOAD])\n");
 		
 		if(!ADDR_FINDED) {
@@ -181,9 +181,6 @@ void Uploader :: fillFunctionMap()
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
 	
-	// Приходит 1 раз во время включения
-	// Поиск будет блокировать шину, так как бинарный поиск занимает в
-	// худшем случае 10 попыток, и скорее всего будет выполнятся 1 раз при старте
 	functionMap[FIND_UPLOAD_ADDR] = [this] (uploader_cmd_t* cmd) 
 	{		
 		std::map<SensorsID, uint32_t>::iterator it = uploadAddr.begin();

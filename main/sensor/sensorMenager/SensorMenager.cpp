@@ -15,7 +15,6 @@
 #include "SensorMenager.hpp"
 #include "DateTimeSensor.hpp"
 #include "memory_w25q_const.hpp"
-#include <cstdio>
 
 QueueHandle_t* SensorMenager :: sensor_event_queue = nullptr;
 QueueHandle_t* SensorMenager :: storage_event_queue = nullptr;
@@ -246,11 +245,9 @@ void SensorMenager :: createSensor(SensorsID id)
 	
 	if(id > 4 && id < 7)
 	{
-			printf("create new dust sensor: %i (SensorMenager.createSensor)\n", static_cast<int>(id));
+		printf("create new dust sensor: %i (SensorMenager.createSensor)\n", static_cast<int>(id));
 		this -> sensorsMap[id] = new DustSensor(id);
 	}
-
-	// todo create CaseOpen Sensor
 }
 
 uint32_t SensorMenager :: getSensorIntervalById(SensorsID id)
