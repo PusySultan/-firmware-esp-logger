@@ -110,9 +110,9 @@ void EventMenager :: fillFunctionMap()
 
 		create_cmd_t* create_cmd = new  create_cmd_t;
 
-		create_cmd -> id = CASE_OPEN_SENSOR_ID;
+		create_cmd -> collection = DEVICE_EVENT;
 		create_cmd -> cmd_type = CREATE;
-		memcpy(create_cmd -> createrBlock[0].data, &dt, sizeof(dt));
+		create_cmd -> dateTime = dt;
 
 		xQueueSend(*create_event_queue, create_cmd, 0);
 
@@ -128,9 +128,9 @@ void EventMenager :: fillFunctionMap()
 
 		create_cmd_t* create_cmd = new  create_cmd_t;
 
-		create_cmd -> id = CASE_CLOSE_SENSOR_ID;
+		create_cmd -> collection = DEVICE_EVENT;
 		create_cmd -> cmd_type = CREATE;
-		memcpy(create_cmd -> createrBlock[0].data, &dt, sizeof(dt));
+		create_cmd -> dateTime = dt;
 
 		xQueueSend(*create_event_queue, create_cmd, 0);
 

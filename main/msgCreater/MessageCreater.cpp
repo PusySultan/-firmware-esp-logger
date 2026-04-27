@@ -82,7 +82,7 @@ void MessageCreater :: fillFunctionMap()
 		cmd -> dateTime.toString(dateTimeStr);
 		
 		cJSON_AddStringToObject(message, "date", dateTimeStr);
-		cJSON_AddNumberToObject(message, "sensorInfo", cmd -> id);
+		cJSON_AddNumberToObject(message, "sensorInfo", readU32LE(cmd -> createrBlock[1].data));
 		cJSON_AddNumberToObject(message, "val", readU32LE(cmd -> createrBlock[0].data));
 		
 		cJSON_AddStringToObject(topJSON, "type", "POST");

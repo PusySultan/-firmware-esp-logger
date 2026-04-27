@@ -27,10 +27,9 @@ struct creater_block
 struct create_cmd_t
 {
 	collection_t collection;
-	cmd_type_t cmd_type  = SHUTDOWN_MSG_CREATER;
+	cmd_type_t cmd_type  = CREATE;
 	
-	SensorsID id;					// id устройства для которого выполняется команда
-	creater_block createrBlock[16];	// данные
+	creater_block createrBlock[16];	// данные 16 блоков максимум
 	uint8_t block_length;			// колличество байт данных
 	DateTime dateTime;				// Дата и время регистрации
 	

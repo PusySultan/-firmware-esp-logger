@@ -339,19 +339,16 @@ void Uploader :: sendToServer(SensorsID id, uint8_t* data, uint8_t* dt)
 {
 	create_cmd_t* create_cmd = new create_cmd_t;
 	
-	// add data to cmd
-	creater_block data_block = {
-		.byte_count = 4
-	};
-	memcpy(data_block.data, data, 4);
-	
-	create_cmd -> id = id;
 	create_cmd -> cmd_type = CREATE;
 	create_cmd -> collection = getCmdCollection(id);
+	create_cmd -> dateTime = DateTime::fromBytesStatic(dt);	
+	create_cmd -> block_length = 2;
 	
-	create_cmd -> block_length = 1;
-	create_cmd -> createrBlock[0] = data_block;
-	create_cmd -> dateTime = DateTime::fromBytesStatic(dt);
+	memcpy(create_cmd -> createrBlock[0].data, data, 4);
+	create_cmd -> createrBlock[0].byte_count = 4;
+	
+	writeU32LE(create_cmd -> createrBlock[1].data, id);
+	create_cmd -> createrBlock[1].byte_count = 4;
 	
 	create_cmd -> sync_semaphore = NULL;
 	
