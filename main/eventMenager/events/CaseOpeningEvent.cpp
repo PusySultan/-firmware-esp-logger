@@ -21,12 +21,11 @@ CaseOpeningEvent :: CaseOpeningEvent (gpio_num_t PIN, QueueHandle_t* _global_eve
 	isr_pin = PIN;
 
 	gpio_config_t gp_config = {
-			
-			.pin_bit_mask = (1ULL << isr_pin),
-			.mode = GPIO_MODE_INPUT,
-			.pull_up_en = GPIO_PULLUP_DISABLE,
-			.pull_down_en = GPIO_PULLDOWN_DISABLE,
-			.intr_type = GPIO_INTR_ANYEDGE		    // Прерывание при лююом уровню
+		.pin_bit_mask = (1ULL << isr_pin),
+		.mode = GPIO_MODE_INPUT,
+		.pull_up_en = GPIO_PULLUP_DISABLE,
+		.pull_down_en = GPIO_PULLDOWN_DISABLE,
+		.intr_type = GPIO_INTR_ANYEDGE		    // Прерывание при лююом уровню
 	};
 		
 	gpio_config(&gp_config);
