@@ -21,8 +21,9 @@ enum SensorsID
 	DUST_SENSOR_2_ID = 6,
 	
 	CASE_OPEN_SENSOR_ID = 7,
+	CASE_CLOSE_SENSOR_ID = 8,
 	
-	UNKNOWN_SENSOR = 8
+	UNKNOWN_SENSOR = 9
 };
 
 enum sensor_event_type_t

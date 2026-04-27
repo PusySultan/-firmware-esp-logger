@@ -41,6 +41,7 @@
 	
 	// EVENTS_PIN
 	#define EVENT_VOLTAGE_OFF_PIN GPIO_NUM_36
+	#define EVENT_CASE_OPEN_PIN   GPIO_NUM_33
 	
 	// GND
 	#define ON_GND 21

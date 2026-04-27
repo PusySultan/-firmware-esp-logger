@@ -63,7 +63,7 @@ void EventMenager :: fillFunctionMap()
 				
 		this -> saveEnableTime();
 		
-		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_VOLTAGE_OFF_PIN, event_queue);
+		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_CASE_OPEN_PIN, event_queue);
 
 		this -> createSensor(TEMP_SENSOR_1_ID);
 		this -> createSensor(TEMP_SENSOR_2_ID);
@@ -103,8 +103,38 @@ void EventMenager :: fillFunctionMap()
 
 	this -> eventProcessors[CASE_OPENING_EVENT] = [](event_cmd_t* cmd)
 	{
-		// todo
-		printf("\nCASE IS OPEN\n");	
+		printf("\nCASE IS OPEN\n");
+
+		DateTime dt;
+		DateTimeSensor::getInstance().ds1302_getDateTime(&dt);
+
+		create_cmd_t* create_cmd = new  create_cmd_t;
+
+		create_cmd -> id = CASE_OPEN_SENSOR_ID;
+		create_cmd -> cmd_type = CREATE;
+		memcpy(create_cmd -> createrBlock[0].data, &dt, sizeof(dt));
+
+		xQueueSend(*create_event_queue, create_cmd, 0);
+
+		delete cmd;
+	};
+
+	this -> eventProcessors[CASE_CLOSENG_EVENT] = [](event_cmd_t* cmd)
+	{
+		printf("\nCASE IS CLOSE\n");
+
+		DateTime dt;
+		DateTimeSensor::getInstance().ds1302_getDateTime(&dt);
+
+		create_cmd_t* create_cmd = new  create_cmd_t;
+
+		create_cmd -> id = CASE_CLOSE_SENSOR_ID;
+		create_cmd -> cmd_type = CREATE;
+		memcpy(create_cmd -> createrBlock[0].data, &dt, sizeof(dt));
+
+		xQueueSend(*create_event_queue, create_cmd, 0);
+
+		delete cmd;
 	};
 }
 

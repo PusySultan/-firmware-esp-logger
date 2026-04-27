@@ -11,16 +11,17 @@
 #include "DateTime.hpp"
 enum event_type_t
 {
-	DEVICE_EVENT_ON  = 0,
-	DEVICE_EVENT_OFF = 1,
+	DEVICE_EVENT_UNKNOW = 0,
+
+	DEVICE_EVENT_ON  = 1,
+	DEVICE_EVENT_OFF = 2,
 	
 	DEVICE_EVENT_ERROR = 3,
 	
 	DEVICE_EVENT_CRITICAL = 4,
 	
 	CASE_OPENING_EVENT = 5,
-	
-	DEVICE_EVENT_UNKNOW = 10
+	CASE_CLOSENG_EVENT = 6,
 };
 
 struct event_cmd_t

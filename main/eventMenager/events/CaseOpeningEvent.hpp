@@ -20,6 +20,8 @@ class CaseOpeningEvent : public IEvent
 	  virtual ~CaseOpeningEvent ();
 
 	private:
+		static bool CASE_IS_OPEN;
+
 		gpio_num_t isr_pin;
 		static event_cmd_t* isr_event;
 		static QueueHandle_t* global_event_queue;
