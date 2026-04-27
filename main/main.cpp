@@ -43,10 +43,10 @@ void startBaseInit()
 	eventMenager = new EventMenager();
 	
 	network_event_queue = xQueueCreate(3, sizeof(network_cmd_t*));
-	storage_event_queue = xQueueCreate(10,  sizeof(storage_cmd_t*));
+	storage_event_queue = xQueueCreate(20,  sizeof(storage_cmd_t*));
 	sensor_event_queue  = xQueueCreate(20,  sizeof(sensor_cmd_t*));
 	upload_event_queue  = xQueueCreate(10,  sizeof(uploader_cmd_t*));
-	creater_event_queue  = xQueueCreate(10, sizeof(create_cmd_t*));
+	create_event_queue  = xQueueCreate(20, sizeof(create_cmd_t*));
 	serverMsgProcessor_event_queue = xQueueCreate(10, sizeof(char*));
 	event_queue = xQueueCreate(5, sizeof(event_cmd_t*));
 	
@@ -57,16 +57,16 @@ void startBaseInit()
 	
 	storage -> overrideInternalQueue(&storage_event_queue);
 	storage -> overrideUploadQueue(&upload_event_queue);
-	storage -> overrideMsgCreaterQueue(&creater_event_queue);
+	storage -> overrideMsgCreaterQueue(&create_event_queue);
 	
 	sensor -> overrideInternalQueue(&sensor_event_queue);
 	sensor -> overrideStorageQueue(&storage_event_queue);
 	
 	uploader -> overrideInternalQueue(&upload_event_queue);
 	uploader -> overrideStorageQueue(&storage_event_queue);
-	uploader -> overrideCreaterQueue(&creater_event_queue);
+	uploader -> overrideCreaterQueue(&create_event_queue);
 	
-	creater -> overrideInternalQueue(&creater_event_queue);
+	creater -> overrideInternalQueue(&create_event_queue);
 	creater -> overrideNetworkQueue(&network_event_queue);
 	
 	server_msg_processor -> overrideInternalQueue(&serverMsgProcessor_event_queue);
@@ -77,7 +77,7 @@ void startBaseInit()
 	eventMenager -> overrideNetworkQueue(&network_event_queue);
 	eventMenager -> overrideSensorQueue(&sensor_event_queue);
 	eventMenager -> overrideUploadQueue(&upload_event_queue);
-	eventMenager -> overrideCreateQueue(&creater_event_queue);
+	eventMenager -> overrideCreateQueue(&create_event_queue);
 	eventMenager -> overrideSerMsgProcessQueue(&serverMsgProcessor_event_queue);
 	
 	sendStartEvents();
@@ -101,7 +101,7 @@ void clearQueue()
 	vQueueDelete(storage_event_queue);
 	vQueueDelete(sensor_event_queue);
 	vQueueDelete(upload_event_queue);
-	vQueueDelete(creater_event_queue);
+	vQueueDelete(create_event_queue);
 	vQueueDelete(serverMsgProcessor_event_queue);
 	vQueueDelete(event_queue);
 }

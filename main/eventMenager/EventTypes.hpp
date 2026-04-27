@@ -17,7 +17,6 @@ enum event_type_t
 	DEVICE_EVENT_OFF = 2,
 	
 	DEVICE_EVENT_ERROR = 3,
-	
 	DEVICE_EVENT_CRITICAL = 4,
 	
 	CASE_OPENING_EVENT = 5,

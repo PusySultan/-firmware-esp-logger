@@ -5,10 +5,8 @@
  *      Author: Kirill
  */
 
-#include "DateTime.hpp"
-#include "MessageCreaterTypes.hpp"
-#include "cJSON.h"
 #include "esp_mac.h"
+#include "eventFunc.hpp"
 #include "convertFunc.hpp"
 #include "NetworkTypes.hpp"
 #include "MessageCreater.hpp"
@@ -45,10 +43,10 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 	
 	if(!cmd) {
 		printf("Error: cmd is NULL (MessageCreater.EventProcessor)\n");
-		return;
+		return; // 49 строка
 	}
 	
-	if(cmd -> cmd_type == SHUTDOWN_MSG_CREATER)
+	if(cmd -> cmd_type == SHUTDOWN_MSG_CREATER) // 52 строка
 	{
 		printf("KILL process creater (MessageCreater.EventProcessor)\n");
 		this -> killProcess();
@@ -62,7 +60,7 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 		return;	
 	}
 	
-	if(cmd -> collection < 0|| !functionMap.contains(cmd -> collection)) {
+	if(cmd -> collection < 0 || !functionMap.contains(cmd -> collection)) {
 		printf("Error: Dose not exist cmd (MessageCreater.EventProcessor)\n");
 		return;
 	}
@@ -143,6 +141,7 @@ void MessageCreater :: fillFunctionMap()
 		char *event = {};
 		char dateTimeStr[32];
 		cmd -> dateTime.toString(dateTimeStr);
+		event =  event_type_to_string((event_type_t)readU32LE(cmd -> createrBlock[0].data));
 		
 		cmd -> dateTime.toString(dateTimeStr);
 		cJSON_AddStringToObject(message, "date", dateTimeStr);

@@ -10,6 +10,7 @@
 
 #include <map>
 #include <functional>
+#include "CaseOpeningEvent.hpp"
 #include "DateTime.hpp"
 #include "EventTypes.hpp"
 #include "IEvent.hpp"
@@ -47,7 +48,7 @@ class EventMenager final
 		static QueueHandle_t* create_event_queue;
 		static QueueHandle_t* serverMsgProcessor_event_queue;
 	
-		IEvent* _caseOpeningEvent;
+		CaseOpeningEvent* _caseOpeningEvent;
 		IEvent* _voltageOffEvent;
 
 		DateTime enebleTime;

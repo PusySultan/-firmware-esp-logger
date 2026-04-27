@@ -41,7 +41,7 @@ inline TaskHandle_t serverMsgProcessorTaskHundle = NULL;
 inline QueueHandle_t storage_event_queue;
 inline QueueHandle_t upload_event_queue;
 inline QueueHandle_t sensor_event_queue;
-inline QueueHandle_t creater_event_queue;
+inline QueueHandle_t create_event_queue;
 inline QueueHandle_t network_event_queue;
 inline QueueHandle_t event_queue;
 inline QueueHandle_t serverMsgProcessor_event_queue;

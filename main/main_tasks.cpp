@@ -68,7 +68,10 @@ void network_task(void *pvParameters)
 	{
 		if(xQueueReceive(network_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!network) continue;
+			if(!network) {
+				delete cmd;
+				continue;
+			}
 				
 			network -> eventProcessor(cmd);
 			// delete cmd;
@@ -84,7 +87,10 @@ void storage_task(void *pvParameters)
 	{
 		if(xQueueReceive(storage_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!storage) continue;
+			if(!storage) {
+				delete cmd;
+				continue;
+			}
 			
 			storage -> eventProcessor(cmd);
 		}
@@ -99,7 +105,10 @@ void sensors_task(void *pvParameters)
 	{
 		if(xQueueReceive(sensor_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!sensor) continue;
+			if(!sensor) {
+				delete cmd;
+				continue;
+			}
 			
 			sensor -> eventProcessor(cmd);
 		}
@@ -115,7 +124,10 @@ void upload_task(void *pvParameters)
 	{
 		if(xQueueReceive(upload_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!uploader) continue;
+			if(!uploader) {
+				delete cmd;
+				continue;
+			}
 			
 			uploader -> eventProcessor(cmd);
 		}
@@ -129,9 +141,13 @@ void create_task(void *pvParameters)
 	
 	while(true)
 	{
-		if(xQueueReceive(creater_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
+		if(xQueueReceive(create_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!creater) continue;
+			if(!creater){
+				 delete cmd;
+				 continue;
+			}
+			
 			creater -> eventProcessor(cmd);
 		}
 	}
@@ -146,7 +162,10 @@ void desirializer_task(void *pvParameters)
 	{
 		if(xQueueReceive(serverMsgProcessor_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!server_msg_processor) continue;
+			if(!server_msg_processor) {
+				delete cmd;
+				continue;
+			}
 			
 			server_msg_processor -> internalProcessor(cmd);
 		}
@@ -161,7 +180,10 @@ void event_task(void *pvParameters)
 	{
 		if(xQueueReceive(event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
-			if(!eventMenager) continue;
+			if(!eventMenager) {
+				delete cmd;
+				continue;
+			}
 			
 			eventMenager -> eventProcessor(cmd);
 

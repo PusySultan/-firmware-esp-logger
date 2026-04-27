@@ -19,10 +19,12 @@ class CaseOpeningEvent : public IEvent
 	  CaseOpeningEvent (gpio_num_t, QueueHandle_t*);
 	  virtual ~CaseOpeningEvent ();
 
+	  void interruptEnable();
+
 	private:
 		static bool CASE_IS_OPEN;
 
-		gpio_num_t isr_pin;
+		static gpio_num_t isr_pin;
 		static event_cmd_t* isr_event;
 		static QueueHandle_t* global_event_queue;
 		static void IRAM_ATTR callback(void* arg);

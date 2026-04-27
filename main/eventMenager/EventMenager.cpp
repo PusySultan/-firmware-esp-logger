@@ -101,7 +101,7 @@ void EventMenager :: fillFunctionMap()
 		delete cmd;
 	};	
 
-	this -> eventProcessors[CASE_OPENING_EVENT] = [](event_cmd_t* cmd)
+	this -> eventProcessors[CASE_OPENING_EVENT] = [this](event_cmd_t* cmd)
 	{
 		printf("\nCASE IS OPEN\n");
 
@@ -111,15 +111,22 @@ void EventMenager :: fillFunctionMap()
 		create_cmd_t* create_cmd = new  create_cmd_t;
 
 		create_cmd -> collection = DEVICE_EVENT;
+		create_cmd -> sync_semaphore = NULL;
 		create_cmd -> cmd_type = CREATE;
 		create_cmd -> dateTime = dt;
 
-		xQueueSend(*create_event_queue, create_cmd, 0);
+		create_cmd -> block_length = 1;
+		create_cmd -> createrBlock[0].byte_count = 4;
+		writeU32LE(create_cmd -> createrBlock[0].data, CASE_OPENING_EVENT);
+		
+		xQueueSend(*create_event_queue, &create_cmd, 0);
 
+		vTaskDelay(pdMS_TO_TICKS(3000));
+		this -> _caseOpeningEvent -> interruptEnable();
 		delete cmd;
 	};
 
-	this -> eventProcessors[CASE_CLOSENG_EVENT] = [](event_cmd_t* cmd)
+	this -> eventProcessors[CASE_CLOSENG_EVENT] = [this](event_cmd_t* cmd)
 	{
 		printf("\nCASE IS CLOSE\n");
 
@@ -129,11 +136,19 @@ void EventMenager :: fillFunctionMap()
 		create_cmd_t* create_cmd = new  create_cmd_t;
 
 		create_cmd -> collection = DEVICE_EVENT;
+		create_cmd -> sync_semaphore = NULL;
 		create_cmd -> cmd_type = CREATE;
 		create_cmd -> dateTime = dt;
 
-		xQueueSend(*create_event_queue, create_cmd, 0);
+		create_cmd -> block_length = 1;
+		create_cmd -> createrBlock[0].byte_count = 4;
+		writeU32LE(create_cmd -> createrBlock[0].data, CASE_CLOSENG_EVENT);
 
+		xQueueSend(*create_event_queue, &create_cmd, 0);
+
+		vTaskDelay(pdMS_TO_TICKS(3000));
+		this -> _caseOpeningEvent -> interruptEnable();
+		
 		delete cmd;
 	};
 }

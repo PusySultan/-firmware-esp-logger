@@ -114,8 +114,10 @@ void Uploader :: fillFunctionMap()
 		
 		do
 		{
+			printf("request Data\n");	
 			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
-			
+			printf("get Data\n");	
+
 			if(!arrayContainsTrush(data, 4))
 			{
 				if(STOP_UPOLAD) {
@@ -127,17 +129,18 @@ void Uploader :: fillFunctionMap()
 							   
 				char buffer[32];
 				DateTime dt; dt.fromBytes(dateTime); dt.toString(buffer);
-				printf("send to server (Uploader.functionMap[START_GLOBAL_UPLOAD])\n");
+						
+				printf("data send\n");				
+				sendToServer(currentId, data, dateTime);
+				uploadAddr[currentId] += NEXT_SECTOR;				
+				
+				printf("sending to server (Uploader.functionMap[START_GLOBAL_UPLOAD])\n");
 				printf("data from storage: %" PRIu32 " by addr %" PRIu32 " by sensor id: %" PRIu8 "\n",
 				       readU32LE(data),
 				       (uint32_t)uploadAddr[currentId],
 				       (uint8_t)currentId);
 				printf("dt from storage:%s \n", buffer);
-				
-								
-				sendToServer(currentId, data, dateTime);
-				uploadAddr[currentId] += NEXT_SECTOR;				
-				
+
 				vTaskDelay(pdMS_TO_TICKS(1000));
 			} else {
 				// помечаем данные по данному ID загруженными
@@ -155,6 +158,7 @@ void Uploader :: fillFunctionMap()
 				break;
 			}
 			
+			printf("end iteration \n\n");
 		}
 		while(!STOP_UPOLAD);
 		
@@ -251,6 +255,8 @@ void Uploader :: reesteAllStates()
 		it -> second = false;
 		++it;
 	}
+
+	printf("reset all states");
 }
 
 // Ищем по 1000 страницам
@@ -324,7 +330,7 @@ void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)
 	
 	get_data_from_storage_cmd -> data[1].length = sizeof(DateTime);
 	get_data_from_storage_cmd -> data[1].addr = addr + 4;
-		
+	
 	xQueueSend(*storage_event_queue, &get_data_from_storage_cmd, portMAX_DELAY);
 	xSemaphoreTake(get_data_from_storage_cmd -> sync_semaphore, portMAX_DELAY);
 	vSemaphoreDelete(get_data_from_storage_cmd -> sync_semaphore);
