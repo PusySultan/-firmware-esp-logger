@@ -32,10 +32,10 @@ void W25Q128 :: w25MemoryInit()
 		.mode = 0,                      // Режим SPI 0
 		.cs_ena_pretrans = 0,           // Активация CS перед передачей (в тактах)
 	    .cs_ena_posttrans = 0,          // Держать CS после передачи (в тактах)
-	    .clock_speed_hz = 1000000,      // Частота 1 МГц)
+	    .clock_speed_hz = 10000000,      // Частота 10 МГц
 	    .spics_io_num = MEMORY_PIN_NUM_CS,     // GPIO для Chip Select
 	    .flags = 0,                     // Флаги устройства
-	   	.queue_size = 20,               // Размер очереди транзакций
+	   	.queue_size = 30,               // Размер очереди транзакций
 	};
     
 	// добавляем устройство на шину

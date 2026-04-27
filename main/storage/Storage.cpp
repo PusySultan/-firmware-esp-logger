@@ -97,7 +97,7 @@ void Storage :: fillFunctionMap()
 		cmd_upload -> event_type = UPLOAD_BY_ADDR;
 		cmd_upload -> addr = cmd -> data[0].addr;
 	
-		xQueueSend(*upload_event_queue, &cmd_upload, portMAX_DELAY);
+		xQueueSend(*upload_event_queue, &cmd_upload, 0);
 	
 		delete cmd;
 	};

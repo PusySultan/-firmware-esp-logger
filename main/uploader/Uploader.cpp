@@ -206,6 +206,8 @@ void Uploader :: fillFunctionMap()
 	
 	functionMap[UPLOAD_BY_ADDR] = [this](uploader_cmd_t* cmd)
 	{	
+		if(!OLD_DATA_UPLOAD) return; // Если старые данные не загруженны, новые не трогаем
+
 		if(!storage_event_queue) {
 			printf("Does not exist storage queue (functionMap[UPLOAD_BY_ID])\n");
 			return;	
@@ -216,7 +218,6 @@ void Uploader :: fillFunctionMap()
 			return;
 		}
 		
-		if(!OLD_DATA_UPLOAD) return; // Если старые данные не загруженны, новые не трогаем
 		if(STOP_UPOLAD) return; 	 // Если вызвана остановка загрузки
 				
 		printf("\nUPLOAD BY ADDR\n");
