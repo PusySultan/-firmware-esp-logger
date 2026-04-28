@@ -14,6 +14,7 @@ idf_component_register(
     	eventMenager/EventMenager.cpp
     	eventMenager/events/IEvent.cpp
     	eventMenager/events/IEvent.cpp
+    	eventMenager/events/SleepEvent.cpp
     	eventMenager/events/CaseOpeningEvent.cpp
     	
     	sensor/ISensor.cpp

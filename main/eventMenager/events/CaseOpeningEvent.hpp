@@ -8,9 +8,9 @@
 #ifndef MAIN_EVENTMENAGER_EVENTS_CASEOPENINGEVENT_HPP_
 #define MAIN_EVENTMENAGER_EVENTS_CASEOPENINGEVENT_HPP_
 
-#include "EventTypes.hpp"
 #include "IEvent.hpp"
 #include "soc/gpio_num.h"
+#include "EventTypes.hpp"
 #include "freertos/FreeRTOS.h"
 
 class CaseOpeningEvent : public IEvent

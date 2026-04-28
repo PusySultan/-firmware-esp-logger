@@ -30,8 +30,6 @@ CaseOpeningEvent :: CaseOpeningEvent (gpio_num_t PIN, QueueHandle_t* _global_eve
 	};
 		
 	gpio_config(&gp_config);
-		
-	gpio_install_isr_service(0);
 	gpio_isr_handler_add(isr_pin, callback, NULL);
 }
 

@@ -6,6 +6,7 @@
  */
 #include "CaseOpeningEvent.hpp"
 #include "EventTypes.hpp"
+#include "SleepEvent.hpp"
 #include "driver/gpio.h"
 #include "convertFunc.hpp"
 #include "NetworkTypes.hpp"
@@ -64,6 +65,7 @@ void EventMenager :: fillFunctionMap()
 		this -> saveEnableTime();
 		
 		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_CASE_OPEN_PIN, event_queue);
+		this -> _voltageOffEvent = new SleepEvent(EVENT_VOLTAGE_OFF_PIN ,event_queue);
 
 		this -> createSensor(TEMP_SENSOR_1_ID);
 		this -> createSensor(TEMP_SENSOR_2_ID);
@@ -79,7 +81,7 @@ void EventMenager :: fillFunctionMap()
 	
 	this -> eventProcessors[DEVICE_EVENT_OFF] = [this](event_cmd_t* cmd)
 	{
-		printf("Start kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n");
+		printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
 				
 		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> disableTime);
 		cmd -> dateTime = disableTime;
@@ -121,6 +123,10 @@ void EventMenager :: fillFunctionMap()
 		
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
+		// todo save in tow25q128
+
+
+
 		vTaskDelay(pdMS_TO_TICKS(3000));
 		this -> _caseOpeningEvent -> interruptEnable();
 		delete cmd;
@@ -145,6 +151,9 @@ void EventMenager :: fillFunctionMap()
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_CLOSENG_EVENT);
 
 		xQueueSend(*create_event_queue, &create_cmd, 0);
+
+		// todo save in tow25q128
+
 
 		vTaskDelay(pdMS_TO_TICKS(3000));
 		this -> _caseOpeningEvent -> interruptEnable();

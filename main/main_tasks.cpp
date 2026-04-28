@@ -189,6 +189,7 @@ void event_task(void *pvParameters)
 
 			if(eventMenager -> getKillStatus()) {
 				clearQueue();
+				byby();
 			}
 		}
 	}

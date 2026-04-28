@@ -1,22 +1,23 @@
 
 #include "main.hpp"
-#include "EventMenager.hpp"
 #include "memory_w25q_const.hpp"
 #include "nvs_flash.h"
-#include "EventTypes.hpp"
+#include "driver/gpio.h"
+#include "EventMenager.hpp"
 #include "DateTimeSensor.hpp"
 #include "pins_config_const.hpp"
 #include "main_tasks.cpp"
-#include <stdlib.h>
 
 extern "C" void app_main(void)
 {
-	wakeup =  esp_sleep_get_wakeup_cause();
+	wekup_sourse_t wsourse = getWekupSourse(); 
 	
-	if(wakeup == ESP_SLEEP_WAKEUP_EXT0) {
+	if(wsourse == CASE_OPEN_SOURSE)
+	{
 		startSpecialInit();
-		goto end;	
+		goto end;
 	}
+
 	
 	startBaseInit();
 	createTasks();
@@ -32,6 +33,7 @@ extern "C" void app_main(void)
 void startBaseInit()
 {
 	nvs_flash_init();
+	gpio_install_isr_service(0);
 	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
 	
 	storage = new Storage();
@@ -108,7 +110,8 @@ void clearQueue()
 
 void byby()
 {
-	esp_sleep_enable_ext0_wakeup((gpio_num_t)WAKEUP_PIN, 1);
+	const uint64_t WAKEUP_PIN_BITMASK = (1ULL << EVENT_CASE_OPEN_PIN) | (1ULL <<  EVENT_VOLTAGE_OFF_PIN);
+	esp_sleep_enable_ext1_wakeup(WAKEUP_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 	esp_deep_sleep_start();
 }
 
@@ -119,6 +122,35 @@ void startSpecialInit()
 	storage -> overrideInternalQueue(&storage_event_queue);
 
 	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
+}
+
+wekup_sourse_t getWekupSourse()
+{
+	wakeup = esp_sleep_get_wakeup_cause();
+
+	if (wakeup == ESP_SLEEP_WAKEUP_EXT1)
+	{
+		return DEFAULT_SOURCE;
+	}
+	
+	//Получаем битовую маску конкретных пинов, инициировавших пробуждение
+	uint64_t wakeup_pin_mask =  esp_sleep_get_ext1_wakeup_status();
+
+	// Вскрыли корпус
+	if (wakeup_pin_mask & (1ULL << EVENT_CASE_OPEN_PIN))
+	{
+		printf("GPIO CASE OPEN caused the wakeup!\n");
+		return CASE_OPEN_SOURSE;
+	}
+	
+	// Дали питание
+	if (wakeup_pin_mask & (1ULL << EVENT_VOLTAGE_OFF_PIN))
+	{
+		printf("GPIO voltage on caused the wakeup!\n");
+		return VOLTAGE_ON_SOURSE;
+	}
+
+	return DEFAULT_SOURCE;
 }
 
 void regCaseOpening()

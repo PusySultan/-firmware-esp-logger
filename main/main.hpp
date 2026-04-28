@@ -15,6 +15,7 @@
 #include "MessageCreater.hpp"
 #include "NetworkMenager.hpp"
 #include "MsgFromServerProcessors.hpp"
+#include "wekup_sourse_t.hpp"
 #include <esp_sleep.h>
 
 inline esp_sleep_wakeup_cause_t wakeup; 
@@ -66,5 +67,7 @@ void regCaseOpening();
 void clearQueue();
 void killedTasks();
 void byby();    /// уход ко сну
+wekup_sourse_t getWekupSourse();
+
 
 #endif /* MAIN_MAIN_HPP_ */
