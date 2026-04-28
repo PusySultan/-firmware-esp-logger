@@ -117,19 +117,26 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> dateTime = caseOpenTime;
 
 		create_cmd -> block_length = 1;
-		create_cmd -> createrBlock[0].byte_count = sizeof(caseOpenTime);
+		create_cmd -> createrBlock[0].byte_count = sizeof(CASE_OPENING_EVENT);
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_OPENING_EVENT);
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
 		storage_cmd_t* save_event = new storage_cmd_t;
 
-		save_event -> event_type = WRITE_DATA;
+		save_event -> event_type = WRITE_BY_TRANS;
 		save_event -> sectorAddr = ADDR_EVENT_CASE_OPEN;
 		save_event -> sync_semaphore = NULL;
-		save_event -> data_size = 1;
+		save_event -> data_size = 2;
+
+		// data
 		save_event -> data[0].addr = ADDR_EVENT_CASE_OPEN;
-		save_event -> data[0].length = sizeof(caseOpenTime);
-		memcpy(save_event -> data[0].data, &caseOpenTime, save_event -> data[0].length);
+		save_event -> data[0].length = sizeof(CASE_OPENING_EVENT);	// 4
+		writeU32LE(save_event -> data[0].data, CASE_OPENING_EVENT);
+		
+		// dateTime
+		save_event -> data[1].addr = ADDR_EVENT_CASE_OPEN + save_event -> data[0].length;
+		save_event -> data[1].length = sizeof(caseOpenTime);
+		memcpy(save_event -> data[1].data, &caseOpenTime, save_event -> data[1].length);
 		xQueueSend(*storage_event_queue, &save_event, 0);
 
 		vTaskDelay(pdMS_TO_TICKS(3000));
@@ -152,7 +159,7 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> dateTime = dt;
 
 		create_cmd -> block_length = 1;
-		create_cmd -> createrBlock[0].byte_count = sizeof(dt);
+		create_cmd -> createrBlock[0].byte_count = sizeof(CASE_CLOSENG_EVENT);
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_CLOSENG_EVENT);
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
@@ -163,11 +170,15 @@ void EventMenager :: fillFunctionMap()
 		save_event -> sync_semaphore = NULL;
 		save_event -> data_size = 1;
 
-		// open
+		// data
 		save_event -> data[0].addr = ADDR_EVENT_CASE_CLOSE;
-		save_event -> data[0].length = sizeof(caseOpenTime);
-		memcpy(save_event -> data[0].data, &caseOpenTime, save_event -> data[0].length);
-
+		save_event -> data[0].length = sizeof(CASE_CLOSENG_EVENT);	// 4
+		writeU32LE(save_event -> data[0].data, CASE_CLOSENG_EVENT);
+		
+		// dateTime
+		save_event -> data[1].addr = ADDR_EVENT_CASE_CLOSE + save_event -> data[0].length;
+		save_event -> data[1].length = sizeof(dt);
+		memcpy(save_event -> data[1].data, &dt, save_event -> data[1].length);
 		xQueueSend(*storage_event_queue, &save_event, 0);
 
 		vTaskDelay(pdMS_TO_TICKS(3000));
