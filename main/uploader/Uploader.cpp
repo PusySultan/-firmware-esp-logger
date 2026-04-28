@@ -113,10 +113,8 @@ void Uploader :: fillFunctionMap()
 		SensorsID currentId = TEMP_SENSOR_1_ID;
 		
 		do
-		{
-			printf("request Data\n");	
+		{	
 			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
-			printf("get Data\n");	
 
 			if(!arrayContainsTrush(data, 4))
 			{
@@ -125,22 +123,10 @@ void Uploader :: fillFunctionMap()
 					break;
 				}
 				
-				uploadStateById[currentId] = false;
-							   
-				char buffer[32];
-				DateTime dt; dt.fromBytes(dateTime); dt.toString(buffer);
-						
-				printf("data send\n");				
+				uploadStateById[currentId] = false;										
 				sendToServer(currentId, data, dateTime);
-				uploadAddr[currentId] += NEXT_SECTOR;				
-				
-				printf("sending to server (Uploader.functionMap[START_GLOBAL_UPLOAD])\n");
-				printf("data from storage: %" PRIu32 " by addr %" PRIu32 " by sensor id: %" PRIu8 "\n",
-				       readU32LE(data),
-				       (uint32_t)uploadAddr[currentId],
-				       (uint8_t)currentId);
-				printf("dt from storage:%s \n", buffer);
-
+				this -> getNextAddr(currentId);			
+			
 				vTaskDelay(pdMS_TO_TICKS(1000));
 			} else {
 				// помечаем данные по данному ID загруженными
@@ -157,8 +143,7 @@ void Uploader :: fillFunctionMap()
 				printf("\n\nBREAK FROM UPLOADER DATA out 2\n\n");
 				break;
 			}
-			
-			printf("end iteration \n\n");
+
 		}
 		while(!STOP_UPOLAD);
 		
@@ -312,6 +297,14 @@ void Uploader :: readFlag(uint32_t addr, uint8_t* flag)
 	// из 1 блока данных копируем 1 байт
 	memcpy(flag, get_data_from_storage_cmd -> data[0].data, 1);
 	delete get_data_from_storage_cmd;
+}
+
+void Uploader :: getNextAddr(SensorsID id)
+{
+	if(id < 7)
+	{
+		uploadAddr[id] += NEXT_SECTOR;
+	}
 }
 
 void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)

@@ -77,6 +77,7 @@ class Uploader final
 		
 		bool checkAllStates();
 		void reesteAllStates();
+		void getNextAddr(SensorsID id);
 		void resetFlagById(SensorsID id);
 		void uploadAddrById(SensorsID id);
 		void readFlag(uint32_t adddr, uint8_t* flag);
