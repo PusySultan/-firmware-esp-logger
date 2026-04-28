@@ -14,14 +14,17 @@
 
 inline std::map<SensorsID, std::pair<uint32_t, uint32_t>> sector_addr_t
 {
-		   // id			    // min    // max
-	  {TEMP_SENSOR_1_ID,    {0x060000, 0x447FFF}},
-	  {TEMP_SENSOR_2_ID,    {0x448000, 0x82FFFF}},
-	  {TEMP_SENSOR_3_ID,    {0x830000, 0xC17FFF}},
-	  {TEMP_SENSOR_C_ID,    {0x006000, 0x05FFFF}},
-	  {DUST_SENSOR_1_ID,    {0xC18000, 0xE0BFFF}},
-	  {DUST_SENSOR_2_ID, 	{0xE0C000, 0xFFFFFF}},
-	  {CASE_OPEN_SENSOR_ID,	{0x005000, 0x005000}},
+		   // id			    	// min    // max
+	  {TEMP_SENSOR_1_ID,    	{0x060000, 0x447FFF}},
+	  {TEMP_SENSOR_2_ID,    	{0x448000, 0x82FFFF}},
+	  {TEMP_SENSOR_3_ID,    	{0x830000, 0xC17FFF}},
+	  {TEMP_SENSOR_C_ID,    	{0x006000, 0x05FFFF}},
+	  {DUST_SENSOR_1_ID,    	{0xC18000, 0xE0BFFF}},
+	  {DUST_SENSOR_2_ID, 		{0xE0C000, 0xFFFFFF}},
+	  {CASE_OPEN_EVENT_ID,		{0x003000, 0x003000}},
+	  {CASE_CLOSE_EVENT_ID,		{0x003021, 0x003021}},
+	  {LAST_JOB_INTERVAL_ID,	{0x005000, 0x005000}},
+	  {TOTAL_JOB_TIME_ID,		{0x004000, 0x004000 }},
 };
 
 inline SensorsID getSensorIdByAddr(uint32_t addr)

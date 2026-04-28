@@ -244,7 +244,9 @@ void Uploader :: fillFunctionMap()
 bool Uploader :: checkAllStates()
 {
 	return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
-			   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID];
+		   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID] &&
+		   uploadStateById[LAST_JOB_INTERVAL_ID] && uploadStateById[TOTAL_JOB_TIME_ID] && 
+		   uploadStateById[CASE_OPEN_EVENT_ID] && uploadStateById[CASE_CLOSE_EVENT_ID];
 }
 
 void Uploader :: reesteAllStates()
@@ -391,7 +393,7 @@ collection_t Uploader :: getCmdCollection(SensorsID id)
 	if (id == TEMP_SENSOR_1_ID || id == TEMP_SENSOR_2_ID || 
 		id == TEMP_SENSOR_3_ID || id == TEMP_SENSOR_C_ID)
 	{
-		return DEVICE_TEMP;;
+		return DEVICE_TEMP;
 	}
 	
 	if (id == DUST_SENSOR_1_ID || id == DUST_SENSOR_2_ID)
@@ -399,7 +401,13 @@ collection_t Uploader :: getCmdCollection(SensorsID id)
 		return DEVICE_DUST;
 
 	};
-	
+
+	if(id == LAST_JOB_INTERVAL_ID || id == TOTAL_JOB_TIME_ID ||
+	   id == CASE_CLOSE_EVENT_ID  || id == CASE_OPEN_EVENT_ID)
+	{
+		return DEVICE_EVENT;
+	}
+
 	return UNKNOW_COLLECTION;	
 }
 

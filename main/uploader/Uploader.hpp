@@ -47,13 +47,17 @@ class Uploader final
 		// Мапа адресов загрузки (датчики и состояния)
 		std::map<SensorsID, uint32_t> uploadAddr
 		{
-			{TEMP_SENSOR_1_ID,  UINT32_MAX},
-			{TEMP_SENSOR_2_ID,  UINT32_MAX},
-			{TEMP_SENSOR_3_ID,  UINT32_MAX},
-			{TEMP_SENSOR_C_ID,  UINT32_MAX},
-			{DUST_SENSOR_1_ID, UINT32_MAX},
-			{DUST_SENSOR_2_ID,  UINT32_MAX},
-			{CASE_OPEN_SENSOR_ID, UINT32_MAX}
+			{TEMP_SENSOR_1_ID,		UINT32_MAX},
+			{TEMP_SENSOR_2_ID,		UINT32_MAX},
+			{TEMP_SENSOR_3_ID,		UINT32_MAX},
+			{TEMP_SENSOR_C_ID,		UINT32_MAX},
+			{DUST_SENSOR_1_ID,		UINT32_MAX},
+			{DUST_SENSOR_2_ID,		UINT32_MAX},
+			{CASE_OPEN_EVENT_ID,	UINT32_MAX},
+			{CASE_CLOSE_EVENT_ID, 	UINT32_MAX},
+			{LAST_JOB_INTERVAL_ID, 	UINT32_MAX},
+			{TOTAL_JOB_TIME_ID, 	UINT32_MAX},
+
 		};
 		
 		// Мапа состояний
@@ -65,7 +69,10 @@ class Uploader final
 			{TEMP_SENSOR_C_ID, 		false},
 			{DUST_SENSOR_1_ID, 		false},
 			{DUST_SENSOR_2_ID,  	false},
-			{CASE_OPEN_SENSOR_ID, 	false}
+			{CASE_OPEN_EVENT_ID, 	false},
+			{CASE_CLOSE_EVENT_ID, 	false},
+			{LAST_JOB_INTERVAL_ID, 	false},
+			{TOTAL_JOB_TIME_ID, 	false},
 		};
 		
 		bool checkAllStates();

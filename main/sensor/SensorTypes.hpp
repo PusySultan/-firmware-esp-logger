@@ -12,6 +12,8 @@
 
 enum SensorsID
 {
+	UNKNOWN_SENSOR = 0,
+
 	TEMP_SENSOR_1_ID = 1,
 	TEMP_SENSOR_2_ID = 2,
 	TEMP_SENSOR_3_ID = 3,
@@ -20,10 +22,11 @@ enum SensorsID
 	DUST_SENSOR_1_ID = 5,
 	DUST_SENSOR_2_ID = 6,
 	
-	CASE_OPEN_SENSOR_ID = 7,
-	CASE_CLOSE_SENSOR_ID = 8,
-	
-	UNKNOWN_SENSOR = 9
+	CASE_OPEN_EVENT_ID = 7,
+	CASE_CLOSE_EVENT_ID = 8,
+
+	LAST_JOB_INTERVAL_ID = 9,
+	TOTAL_JOB_TIME_ID = 10,
 };
 
 enum sensor_event_type_t
