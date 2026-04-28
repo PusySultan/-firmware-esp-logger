@@ -53,6 +53,7 @@ class EventMenager final
 
 		DateTime enebleTime;
 		DateTime disableTime;
+		DateTime caseOpenTime;
 
 		bool KILL_PROCESS_FLSG = false;
 

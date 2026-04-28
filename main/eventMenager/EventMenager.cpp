@@ -106,20 +106,20 @@ void EventMenager :: fillFunctionMap()
 	this -> eventProcessors[CASE_OPENING_EVENT] = [this](event_cmd_t* cmd)
 	{
 		printf("\nCASE IS OPEN\n");
-
-		DateTime dt;
-		DateTimeSensor::getInstance().ds1302_getDateTime(&dt);
+		// Сохраняем время вскрыти также в коде, для того чтобы после не читать его из памяти
+		DateTimeSensor::getInstance().ds1302_getDateTime(&caseOpenTime);
 
 		create_cmd_t* create_cmd = new  create_cmd_t;
 
 		create_cmd -> collection = DEVICE_EVENT;
 		create_cmd -> sync_semaphore = NULL;
 		create_cmd -> cmd_type = CREATE;
-		create_cmd -> dateTime = dt;
+		create_cmd -> dateTime = caseOpenTime;
 
 		create_cmd -> block_length = 1;
 		create_cmd -> createrBlock[0].byte_count = 4;
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_OPENING_EVENT);
+		xQueueSend(*create_event_queue, &create_cmd, 0);
 
 		storage_cmd_t* save_event = new storage_cmd_t;
 
@@ -128,14 +128,9 @@ void EventMenager :: fillFunctionMap()
 		save_event -> sync_semaphore = NULL;
 		save_event -> data_size = 1;
 		save_event -> data[0].addr = ADDR_EVENT_CASE_OPEN;
-		save_event -> data[0].length = sizeof(dt);
-		memcpy(save_event -> data[0].data, &dt, save_event -> data[0].length);
-		
-		xQueueSend(*create_event_queue, &create_cmd, 0);
-
-		// todo save in tow25q128
-
-
+		save_event -> data[0].length = sizeof(caseOpenTime);
+		memcpy(save_event -> data[0].data, &caseOpenTime, save_event -> data[0].length);
+		xQueueSend(*storage_event_queue, &save_event, 0);
 
 		vTaskDelay(pdMS_TO_TICKS(3000));
 		this -> _caseOpeningEvent -> interruptEnable();
@@ -159,11 +154,26 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> block_length = 1;
 		create_cmd -> createrBlock[0].byte_count = 4;
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_CLOSENG_EVENT);
-
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
-		// todo save in tow25q128
+		storage_cmd_t* save_event = new storage_cmd_t;
 
+		save_event -> event_type = WRITE_BY_TRANS;
+		save_event -> sectorAddr = ADDR_EVENT_CASE_OPEN;
+		save_event -> sync_semaphore = NULL;
+		save_event -> data_size = 2;
+
+		// open
+		save_event -> data[0].addr = ADDR_EVENT_CASE_OPEN;
+		save_event -> data[0].length = sizeof(caseOpenTime);
+		memcpy(save_event -> data[0].data, &caseOpenTime, save_event -> data[0].length);
+
+		// close
+		save_event -> data[1].addr = ADDR_EVENT_CASE_OPEN + sizeof(caseOpenTime) + 1;
+		save_event -> data[1].length = sizeof(dt);
+		memcpy(save_event -> data[1].data, &dt, save_event -> data[1].length);
+
+		xQueueSend(*storage_event_queue, &save_event, 0);
 
 		vTaskDelay(pdMS_TO_TICKS(3000));
 		this -> _caseOpeningEvent -> interruptEnable();
