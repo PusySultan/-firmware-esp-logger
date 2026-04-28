@@ -120,6 +120,16 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> block_length = 1;
 		create_cmd -> createrBlock[0].byte_count = 4;
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_OPENING_EVENT);
+
+		storage_cmd_t* save_event = new storage_cmd_t;
+
+		save_event -> event_type = WRITE_DATA;
+		save_event -> sectorAddr = ADDR_EVENT_CASE_OPEN;
+		save_event -> sync_semaphore = NULL;
+		save_event -> data_size = 1;
+		save_event -> data[0].addr = ADDR_EVENT_CASE_OPEN;
+		save_event -> data[0].length = sizeof(dt);
+		memcpy(save_event -> data[0].data, &dt, save_event -> data[0].length);
 		
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
