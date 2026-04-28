@@ -117,7 +117,7 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> dateTime = caseOpenTime;
 
 		create_cmd -> block_length = 1;
-		create_cmd -> createrBlock[0].byte_count = 4;
+		create_cmd -> createrBlock[0].byte_count = sizeof(caseOpenTime);
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_OPENING_EVENT);
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
@@ -152,26 +152,21 @@ void EventMenager :: fillFunctionMap()
 		create_cmd -> dateTime = dt;
 
 		create_cmd -> block_length = 1;
-		create_cmd -> createrBlock[0].byte_count = 4;
+		create_cmd -> createrBlock[0].byte_count = sizeof(dt);
 		writeU32LE(create_cmd -> createrBlock[0].data, CASE_CLOSENG_EVENT);
 		xQueueSend(*create_event_queue, &create_cmd, 0);
 
 		storage_cmd_t* save_event = new storage_cmd_t;
 
 		save_event -> event_type = WRITE_BY_TRANS;
-		save_event -> sectorAddr = ADDR_EVENT_CASE_OPEN;
+		save_event -> sectorAddr = ADDR_EVENT_CASE_CLOSE;
 		save_event -> sync_semaphore = NULL;
-		save_event -> data_size = 2;
+		save_event -> data_size = 1;
 
 		// open
-		save_event -> data[0].addr = ADDR_EVENT_CASE_OPEN;
+		save_event -> data[0].addr = ADDR_EVENT_CASE_CLOSE;
 		save_event -> data[0].length = sizeof(caseOpenTime);
 		memcpy(save_event -> data[0].data, &caseOpenTime, save_event -> data[0].length);
-
-		// close
-		save_event -> data[1].addr = ADDR_EVENT_CASE_OPEN + sizeof(caseOpenTime) + 1;
-		save_event -> data[1].length = sizeof(dt);
-		memcpy(save_event -> data[1].data, &dt, save_event -> data[1].length);
 
 		xQueueSend(*storage_event_queue, &save_event, 0);
 
