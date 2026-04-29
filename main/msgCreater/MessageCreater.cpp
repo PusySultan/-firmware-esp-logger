@@ -71,7 +71,7 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 void MessageCreater :: fillFunctionMap()
 {	
 	// only push
-	functionMap[DEVICE_TEMP] = [this] (create_cmd_t *cmd) 
+	functionMap[DEVICE_TEMP]	= [this] (create_cmd_t *cmd) 
 	{	
 		cJSON* topJSON = cJSON_CreateObject();
 		cJSON* message = cJSON_CreateObject();
@@ -103,7 +103,7 @@ void MessageCreater :: fillFunctionMap()
 	};
 	
 	// only push
-	functionMap[DEVICE_DUST] = [this] (create_cmd_t *cmd) 
+	functionMap[DEVICE_DUST] 	= [this] (create_cmd_t *cmd) 
 	{
 		cJSON* topJSON = cJSON_CreateObject();
 		cJSON* message = cJSON_CreateObject();
@@ -133,7 +133,7 @@ void MessageCreater :: fillFunctionMap()
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
 	
-	functionMap[DEVICE_EVENT] = [this] (create_cmd_t *cmd) 
+	functionMap[DEVICE_EVENT] 	= [this] (create_cmd_t *cmd) 
 	{
 		cJSON* topJSON = cJSON_CreateObject();
 		cJSON* message = cJSON_CreateObject();
@@ -166,7 +166,7 @@ void MessageCreater :: fillFunctionMap()
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
 	
-	functionMap[SETTING] = [this] (create_cmd_t *cmd) 
+	functionMap[SETTING] 		= [this] (create_cmd_t *cmd) 
 	{		
 		cJSON* searchParamObj  = cJSON_CreateObject();
 		cJSON* searchParamArr  = cJSON_CreateArray();

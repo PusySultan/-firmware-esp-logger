@@ -54,9 +54,7 @@ class Uploader final
 			{DUST_SENSOR_1_ID,		UINT32_MAX},
 			{DUST_SENSOR_2_ID,		UINT32_MAX},
 			{CASE_OPEN_EVENT_ID,	UINT32_MAX},
-			{CASE_CLOSE_EVENT_ID, 	UINT32_MAX},
-			{LAST_JOB_INTERVAL_ID, 	UINT32_MAX},
-			{TOTAL_JOB_TIME_ID, 	UINT32_MAX},
+			{CASE_CLOSE_EVENT_ID, 	UINT32_MAX}
 
 		};
 		
@@ -71,8 +69,6 @@ class Uploader final
 			{DUST_SENSOR_2_ID,  	false},
 			{CASE_OPEN_EVENT_ID, 	false},
 			{CASE_CLOSE_EVENT_ID, 	false},
-			{LAST_JOB_INTERVAL_ID, 	false},
-			{TOTAL_JOB_TIME_ID, 	false},
 		};
 		
 		bool checkAllStates();

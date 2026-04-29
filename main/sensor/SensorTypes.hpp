@@ -24,9 +24,6 @@ enum SensorsID
 	
 	CASE_OPEN_EVENT_ID = 7,
 	CASE_CLOSE_EVENT_ID = 8,
-
-	LAST_JOB_INTERVAL_ID = 9,
-	TOTAL_JOB_TIME_ID = 10,
 };
 
 enum sensor_event_type_t

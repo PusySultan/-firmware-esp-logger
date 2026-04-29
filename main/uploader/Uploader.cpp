@@ -395,10 +395,14 @@ collection_t Uploader :: getCmdCollection(SensorsID id)
 
 	};
 
-	if(id == LAST_JOB_INTERVAL_ID || id == TOTAL_JOB_TIME_ID ||
-	   id == CASE_CLOSE_EVENT_ID  || id == CASE_OPEN_EVENT_ID)
+	if(id == CASE_CLOSE_EVENT_ID  || id == CASE_OPEN_EVENT_ID)
 	{
 		return DEVICE_EVENT;
+	}
+
+	if(id == LAST_JOB_INTERVAL_ID || id == TOTAL_JOB_TIME_ID)
+	{
+		return DEVICE;
 	}
 
 	return UNKNOW_COLLECTION;	

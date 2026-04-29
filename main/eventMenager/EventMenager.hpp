@@ -73,12 +73,12 @@ class EventMenager final
 		void killCreater();
 		void killMsgProcessor();
 	
-		void saveEnableTime();
-		void saveDisabeTime();
+		void saveEnableEvent();
+		void saveDisabeEvent();
 		void saveJobIntervalTime();
 		void saveTotalJobTime();
 
-		DateTime getLastTotalJobTime();
+		uint64_t getTotalJobTime();
 };
 
 #endif /* MAIN_EVENTMENAGER_EVENTMENAGER_HPP_ */

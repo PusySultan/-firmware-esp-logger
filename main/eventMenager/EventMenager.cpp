@@ -62,7 +62,7 @@ void EventMenager :: fillFunctionMap()
 
 		this -> connectGND();
 				
-		this -> saveEnableTime();
+		this -> saveEnableEvent();
 		
 		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_CASE_OPEN_PIN, event_queue);
 		this -> _voltageOffEvent = new SleepEvent(EVENT_VOLTAGE_OFF_PIN ,event_queue);
@@ -95,7 +95,7 @@ void EventMenager :: fillFunctionMap()
 		this -> killMsgProcessor();
 		this -> killNetwork();
 
-		this -> saveDisabeTime();
+		this -> saveDisabeEvent();
 		this -> saveJobIntervalTime();
 		this -> saveTotalJobTime();
 
@@ -230,7 +230,7 @@ void EventMenager :: connectGND()
 	 gpio_set_level(static_cast<gpio_num_t>(ON_GND), 1);	
 }
 
-void EventMenager :: saveEnableTime()
+void EventMenager :: saveEnableEvent()
 {
 	char buffer[32];
 	this -> enebleTime.toString(buffer);
@@ -254,7 +254,7 @@ void EventMenager :: saveEnableTime()
 	xQueueSend(*storage_event_queue, &stor_cmd, 0);	
 }
 
-void EventMenager :: saveDisabeTime()
+void EventMenager :: saveDisabeEvent()
 {
 	block_data time_block;
 	time_block.addr = ADDR_EVENT_DEVICE_OFF;
@@ -273,54 +273,47 @@ void EventMenager :: saveDisabeTime()
 
 void EventMenager :: saveJobIntervalTime()
 {
-	DateTime interval = disableTime - enebleTime;
-	
-	block_data time_block;
-	time_block.addr = ADDR_LAST_JOB_INTERVAL;
-	time_block.length = sizeof(interval);
-	memcpy(time_block.data, &interval, sizeof(interval));
-	
-	storage_cmd_t* reg_event_off = new storage_cmd_t;
-	
+	uint64_t seconds = disableTime.getDifferenceAsSeconds(enebleTime);
+
+	storage_cmd_t* reg_event_off = new storage_cmd_t;	
 	reg_event_off -> event_type = WRITE_BY_TRANS;
 	reg_event_off -> sectorAddr =  ADDR_LAST_JOB_INTERVAL;
 	reg_event_off -> data_size = 1;
-	reg_event_off -> data[0] = time_block;
+	reg_event_off -> data[0].addr = ADDR_LAST_JOB_INTERVAL;
+	reg_event_off -> data[0].length = sizeof(seconds);
+	writeU64LE(reg_event_off -> data[0].data, seconds);
 
 	xQueueSendToFront(*storage_event_queue, reg_event_off, 0);
 }
 
 void EventMenager :: saveTotalJobTime()
 {
-	DateTime lastTotalTime = getLastTotalJobTime();
-	lastTotalTime += (disableTime - enebleTime);
+	uint64_t seconds = getTotalJobTime();
+	seconds += disableTime.getDifferenceAsSeconds(enebleTime);
 
-	block_data time_block;
-	time_block.addr = ADDR_TOTAL_JOB_TIME;
-	time_block.length = sizeof(lastTotalTime);
-	memcpy(time_block.data, &lastTotalTime, sizeof(lastTotalTime));
-	
 	storage_cmd_t* reg_event_off = new storage_cmd_t;
 	
 	reg_event_off -> event_type = WRITE_BY_TRANS;
 	reg_event_off -> sectorAddr =  ADDR_TOTAL_JOB_TIME;
 	reg_event_off -> data_size = 1;
-	reg_event_off -> data[0] = time_block;
+	reg_event_off -> data[0].addr = ADDR_TOTAL_JOB_TIME;
+	reg_event_off -> data[0].length = sizeof(seconds);
+	writeU64LE(reg_event_off -> data[0].data, seconds);
 
 	xQueueSendToFront(*storage_event_queue, reg_event_off, 0);
 }
 
-DateTime EventMenager :: getLastTotalJobTime()
+uint64_t EventMenager :: getTotalJobTime()
 {
-	DateTime lastTotalTime;
+	uint64_t seconds = 0;
+
 	storage_cmd_t* storage_cmd = new storage_cmd_t;
 		
 	storage_cmd -> event_type = READ_DATA;
-	storage_cmd -> sync_semaphore = xSemaphoreCreateBinary();
 	storage_cmd -> data_size = 1;
 	storage_cmd -> sectorAddr = ADDR_TOTAL_JOB_TIME;
-	
-	storage_cmd -> data[0].length = sizeof(DateTime);
+	storage_cmd -> sync_semaphore = xSemaphoreCreateBinary();
+	storage_cmd -> data[0].length = sizeof(seconds);
 	storage_cmd -> data[0].addr = ADDR_TOTAL_JOB_TIME;
 
 	xQueueSendToFront(*storage_event_queue, &storage_cmd, pdMS_TO_TICKS(30000));
@@ -328,13 +321,11 @@ DateTime EventMenager :: getLastTotalJobTime()
 	vSemaphoreDelete(storage_cmd -> sync_semaphore);
 
 	if(arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
-		lastTotalTime.fromBytes(0);
-	} else {
-		lastTotalTime.fromBytes(storage_cmd -> data[0].data);
+		seconds = readU64LE(storage_cmd -> data[0].data);
 	}
 
 	delete storage_cmd;
-	return lastTotalTime;
+	return seconds;
 }
 
 void EventMenager :: createSensor(SensorsID id)
