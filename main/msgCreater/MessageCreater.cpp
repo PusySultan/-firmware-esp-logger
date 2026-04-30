@@ -277,18 +277,15 @@ uint64_t MessageCreater :: getTotalJobInterval()
 	storage_cmd -> data[0].length = sizeof(seconds);
 	storage_cmd -> data[0].addr = ADDR_TOTAL_JOB_TIME;
 
-	printf("get total time\n");
-	if(xQueueSend(*storage_event_queue, &storage_cmd, 0) != pdTRUE)
-	{
-		printf("\n\n\ndata is not send to queue\n\n\n");
-	}
+	xQueueSend(*storage_event_queue, &storage_cmd, 0);
 	xSemaphoreTake(storage_cmd -> sync_semaphore, portMAX_DELAY);
 	vSemaphoreDelete(storage_cmd -> sync_semaphore);
 
-	if(arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
+	if(!arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
 		seconds = readU64LE(storage_cmd -> data[0].data);
 	}
 
+	printf("total job time %llu\n", seconds);
 	delete storage_cmd;
 	return seconds;
 }
@@ -307,17 +304,15 @@ uint64_t MessageCreater :: getLastJobInterval()
 	storage_cmd -> data[0].addr = ADDR_LAST_JOB_INTERVAL;
 
 	printf("get last time\n");
-	if(xQueueSend(*storage_event_queue, &storage_cmd, 0) != pdTRUE)
-	{
-		printf("\n\n\ndata is not send to queue\n\n\n");
-	}
+	xQueueSend(*storage_event_queue, &storage_cmd, 0);
 	xSemaphoreTake(storage_cmd -> sync_semaphore, portMAX_DELAY);
 	vSemaphoreDelete(storage_cmd -> sync_semaphore);
 
-	if(arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
+	if(!arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
 		seconds = readU64LE(storage_cmd -> data[0].data);
 	}
 
+	printf("last job time %llu\n", seconds);
 	delete storage_cmd;
 	return seconds;
 }

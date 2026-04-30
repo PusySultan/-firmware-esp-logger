@@ -5,15 +5,17 @@
  *      Author: Kirill
  */
 #include "SleepEvent.hpp"
-#include "driver/gpio.h"
 #include "convertFunc.hpp"
 #include "EventMenager.hpp"
 #include "DateTimeSensor.hpp"
 #include "CaseOpeningEvent.hpp"
+#include "hal/gpio_types.h"
 #include "memory_w25q_const.hpp"
 #include "pins_config_const.hpp"
 #include "MessageCreaterTypes.hpp"
 #include "MsgFromServerProcessors.hpp"
+
+#include "driver/gpio.h"
 
 EventMenager :: EventMenager ()
 {
@@ -70,20 +72,23 @@ void EventMenager :: fillFunctionMap()
 	
 	this -> eventProcessors[DEVICE_EVENT_OFF] = [this](event_cmd_t* cmd)
 	{
-		printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
-				
+		// printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
+		
+		gpio_set_direction(RED_COLOR_PIN, GPIO_MODE_OUTPUT);
+		gpio_set_level(RED_COLOR_PIN, 0);
+		
 		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> disableTime);
 		cmd -> dateTime = disableTime;
 		
 		this -> KILL_PROCESS_FLSG = true;
 
-		this -> killSensors();
-		this -> killUpload();
-		this -> killCreater();
-		this -> killMsgProcessor();
-		this -> killNetwork();
+		// this -> killSensors();
+		// this -> killUpload();
+		// this -> killCreater();
+		// this -> killMsgProcessor();
+		// this -> killNetwork();
 
-		this -> saveDisabeEvent();
+		// this -> saveDisabeEvent();
 		this -> saveJobIntervalTime();
 		this -> saveTotalJobTime();
 
@@ -175,7 +180,6 @@ void EventMenager :: fillFunctionMap()
 		delete cmd;
 	};
 }
-
 
 void EventMenager :: connectGND()
 {
