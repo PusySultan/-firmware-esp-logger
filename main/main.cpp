@@ -51,15 +51,19 @@ void startBaseInit()
 	create_event_queue  = xQueueCreate(20, sizeof(create_cmd_t*));
 	serverMsgProcessor_event_queue = xQueueCreate(10, sizeof(char*));
 	event_queue = xQueueCreate(5, sizeof(event_cmd_t*));
+
+	storage -> overrideInternalQueue(&storage_event_queue);
+	storage -> overrideUploadQueue(&upload_event_queue);
+	storage -> overrideMsgCreaterQueue(&create_event_queue);
 	
+	creater -> overrideInternalQueue(&create_event_queue);
+	creater -> overrideNetworkQueue(&network_event_queue);
+	creater -> overridStorageQueue(&storage_event_queue);
+
 	network -> overrideInternalQueue(&network_event_queue);
 	network -> overrideStorageQueue(&storage_event_queue);
 	network -> overrideUploadQueue(&upload_event_queue);
 	network -> overrideDesirializerQueue(&serverMsgProcessor_event_queue);
-	
-	storage -> overrideInternalQueue(&storage_event_queue);
-	storage -> overrideUploadQueue(&upload_event_queue);
-	storage -> overrideMsgCreaterQueue(&create_event_queue);
 	
 	sensor -> overrideInternalQueue(&sensor_event_queue);
 	sensor -> overrideStorageQueue(&storage_event_queue);
@@ -67,10 +71,7 @@ void startBaseInit()
 	uploader -> overrideInternalQueue(&upload_event_queue);
 	uploader -> overrideStorageQueue(&storage_event_queue);
 	uploader -> overrideCreaterQueue(&create_event_queue);
-	
-	creater -> overrideInternalQueue(&create_event_queue);
-	creater -> overrideNetworkQueue(&network_event_queue);
-	
+		
 	server_msg_processor -> overrideInternalQueue(&serverMsgProcessor_event_queue);
 	server_msg_processor -> overrideStorageQueue(&storage_event_queue);
 	

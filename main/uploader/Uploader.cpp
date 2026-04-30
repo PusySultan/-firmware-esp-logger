@@ -230,7 +230,6 @@ bool Uploader :: checkAllStates()
 {
 	return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
 		   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID] &&
-		   uploadStateById[LAST_JOB_INTERVAL_ID] && uploadStateById[TOTAL_JOB_TIME_ID] && 
 		   uploadStateById[CASE_OPEN_EVENT_ID] && uploadStateById[CASE_CLOSE_EVENT_ID];
 }
 
@@ -398,11 +397,6 @@ collection_t Uploader :: getCmdCollection(SensorsID id)
 	if(id == CASE_CLOSE_EVENT_ID  || id == CASE_OPEN_EVENT_ID)
 	{
 		return DEVICE_EVENT;
-	}
-
-	if(id == LAST_JOB_INTERVAL_ID || id == TOTAL_JOB_TIME_ID)
-	{
-		return DEVICE;
 	}
 
 	return UNKNOW_COLLECTION;	

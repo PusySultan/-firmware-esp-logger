@@ -48,11 +48,13 @@ esp_err_t Storage :: eventProcessor(storage_cmd_t* cmd)
 	}
 	
 	xSemaphoreTake(this -> memory -> semaphore, portMAX_DELAY);
-			
+	
+	printf("in  storage: %i", cmd -> event_type);
 	this -> functionMap[cmd -> event_type](cmd);
 	
 	xSemaphoreGive(this -> memory -> semaphore);
 	
+	printf("processor end\n");
 	return ESP_OK;
 }
 	   
@@ -79,8 +81,8 @@ void Storage :: fillFunctionMap()
 		{
 			this -> memory -> readByAddr(
 				cmd -> data[i].data, 
-				       cmd -> data[i].addr, 
-				     cmd -> data[i].length);
+				cmd -> data[i].addr, 
+				cmd -> data[i].length);
 		}
 		
 		xSemaphoreGive(cmd -> sync_semaphore);
@@ -109,7 +111,7 @@ void Storage :: fillFunctionMap()
 			this -> memory -> writeByAddr(
 			cmd -> data[i].data, 
 			cmd -> data[i].addr, 
-		  cmd -> data[i].length);	
+		    cmd -> data[i].length);	
 		}
 		
 		delete cmd;

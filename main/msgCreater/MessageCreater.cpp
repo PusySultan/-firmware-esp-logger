@@ -5,18 +5,20 @@
  *      Author: Kirill
  */
 
+#include "StorageTypes.hpp"
 #include "esp_mac.h"
 #include "eventFunc.hpp"
 #include "convertFunc.hpp"
 #include "NetworkTypes.hpp"
 #include "MessageCreater.hpp"
+#include "memory_w25q_const.hpp"
 
 QueueHandle_t* MessageCreater :: create_event_queue = nullptr;
 QueueHandle_t* MessageCreater :: network_event_queue = nullptr;
+QueueHandle_t* MessageCreater :: storage_event_queue = nullptr;
 
-MessageCreater::MessageCreater ()
+MessageCreater :: MessageCreater ()
 {
-	this -> fillReqInfo();
 	this -> fillFunctionMap();
 }
 
@@ -35,6 +37,11 @@ void MessageCreater :: overrideNetworkQueue(QueueHandle_t *queue)
 	network_event_queue = queue;	
 }
 
+void MessageCreater :: overridStorageQueue(QueueHandle_t *queue)
+{
+	storage_event_queue = queue;
+}
+
 void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 {
 	if(this -> KILL_PROSESS_FLAG) {
@@ -46,11 +53,22 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 		return; // 49 строка
 	}
 	
-	if(cmd -> cmd_type == SHUTDOWN_MSG_CREATER) // 52 строка
-	{
+	if(cmd -> cmd_type == SHUTDOWN_MSG_CREATER) {
 		printf("KILL process creater (MessageCreater.EventProcessor)\n");
 		this -> killProcess();
 		
+		if(cmd -> sync_semaphore == NULL) {
+			delete cmd;
+			return;
+		}
+		
+		xSemaphoreGive(cmd -> sync_semaphore);	
+		return;	
+	}
+
+	if(cmd -> cmd_type == INIT) {
+		fillReqInfo();
+
 		if(cmd -> sync_semaphore == NULL) {
 			delete cmd;
 			return;
@@ -64,7 +82,7 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 		printf("Error: Dose not exist cmd (MessageCreater.EventProcessor)\n");
 		return;
 	}
-	
+
 	functionMap[cmd -> collection](cmd);
 }
 
@@ -198,7 +216,6 @@ void MessageCreater :: fillFunctionMap()
 		cJSON_AddItemToObject(message, "searchParam", searchParamObj);
 		cJSON_AddItemToObject(message, "getParam", getParamArr);
 
-
 		// --- fill request info
 		cJSON_AddStringToObject(topJSON, "type", "GET");
 		cJSON_AddStringToObject(topJSON, "collection", collection_to_string(cmd -> collection));
@@ -219,7 +236,6 @@ void MessageCreater :: fillFunctionMap()
 		
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
-
 }
 	
 void MessageCreater :: fillReqInfo()
@@ -236,9 +252,11 @@ void MessageCreater :: fillReqInfo()
 	
 	
 	this -> requesterInfo = cJSON_CreateObject();
-	cJSON_AddStringToObject(this ->  requesterInfo, "entitiesType", "Device");
+	cJSON_AddStringToObject(this -> requesterInfo, "entitiesType", "Device");
 	cJSON_AddStringToObject(this -> requesterInfo, "guid", strMac);
-	
+	cJSON_AddNumberToObject(this -> requesterInfo, "totalJobTime", getTotalJobInterval());
+	cJSON_AddNumberToObject(this -> requesterInfo, "lastJobTime", getLastJobInterval());
+
 	cJSON* auntInfo = cJSON_CreateObject();
 	cJSON_AddStringToObject(auntInfo, "userName", "");
 	cJSON_AddStringToObject(auntInfo, "hash", "");
@@ -246,10 +264,68 @@ void MessageCreater :: fillReqInfo()
 	cJSON_AddItemToObject(this -> requesterInfo, "auntInfo", auntInfo); 	
 }
 
+uint64_t MessageCreater :: getTotalJobInterval()
+{
+	uint64_t seconds = 0;
+
+	storage_cmd_t* storage_cmd = new storage_cmd_t;
+		
+	storage_cmd -> event_type = READ_DATA;
+	storage_cmd -> sectorAddr = ADDR_TOTAL_JOB_TIME;
+	storage_cmd -> sync_semaphore = xSemaphoreCreateBinary();
+	storage_cmd -> data_size = 1;
+	storage_cmd -> data[0].length = sizeof(seconds);
+	storage_cmd -> data[0].addr = ADDR_TOTAL_JOB_TIME;
+
+	printf("get total time\n");
+	if(xQueueSend(*storage_event_queue, &storage_cmd, 0) != pdTRUE)
+	{
+		printf("\n\n\ndata is not send to queue\n\n\n");
+	}
+	xSemaphoreTake(storage_cmd -> sync_semaphore, portMAX_DELAY);
+	vSemaphoreDelete(storage_cmd -> sync_semaphore);
+
+	if(arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
+		seconds = readU64LE(storage_cmd -> data[0].data);
+	}
+
+	delete storage_cmd;
+	return seconds;
+}
+
+uint64_t MessageCreater :: getLastJobInterval()
+{
+	uint64_t seconds = 0;
+
+	storage_cmd_t* storage_cmd = new storage_cmd_t;
+		
+	storage_cmd -> event_type = READ_DATA;
+	storage_cmd -> data_size = 1;
+	storage_cmd -> sectorAddr = ADDR_LAST_JOB_INTERVAL;
+	storage_cmd -> sync_semaphore = xSemaphoreCreateBinary();
+	storage_cmd -> data[0].length = sizeof(seconds);
+	storage_cmd -> data[0].addr = ADDR_LAST_JOB_INTERVAL;
+
+	printf("get last time\n");
+	if(xQueueSend(*storage_event_queue, &storage_cmd, 0) != pdTRUE)
+	{
+		printf("\n\n\ndata is not send to queue\n\n\n");
+	}
+	xSemaphoreTake(storage_cmd -> sync_semaphore, portMAX_DELAY);
+	vSemaphoreDelete(storage_cmd -> sync_semaphore);
+
+	if(arrayContainsTrush(storage_cmd -> data[0].data, storage_cmd -> data[0].length)) {
+		seconds = readU64LE(storage_cmd -> data[0].data);
+	}
+
+	delete storage_cmd;
+	return seconds;
+}
+
 void MessageCreater :: sendToServer(char* data)
 {
 	if (data == nullptr) {
-		printf("Error: Data to be sent to the server (MessageCreater.EventProcessor)\n");
+		printf("Error: Data send is NULL (MessageCreater.EventProcessor)\n");
 		 return;
 	};
 

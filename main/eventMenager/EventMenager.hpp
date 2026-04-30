@@ -62,12 +62,13 @@ class EventMenager final
 		void connectGND();
 		void fillFunctionMap();
 	
+		void initUpload();
 		void initNetwork();
+		void initMsgCreater();
 		void createSensor(SensorsID);
 
 		void killStorage();
 		void killNetwork();
-		void initUpload();
 		void killUpload();
 		void killSensors();
 		void killCreater();

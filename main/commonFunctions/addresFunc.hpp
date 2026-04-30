@@ -23,9 +23,7 @@ inline std::map<SensorsID, std::pair<uint32_t, uint32_t>> sector_addr_t
 	  {DUST_SENSOR_2_ID, 		{0xE0C000, 0xFFFFFF}},
 
 	  {CASE_OPEN_EVENT_ID,		{0x003000, 0x003FFF}},
-	  {CASE_CLOSE_EVENT_ID,		{0x004000, 0x003FFF}},
-	  {TOTAL_JOB_TIME_ID,		{0x005000, 0x005FFF}},
-	  {LAST_JOB_INTERVAL_ID,	{0x006000, 0x006FFF}},
+	  {CASE_CLOSE_EVENT_ID,	{0x004000, 0x003FFF}},
 };
 
 inline SensorsID getSensorIdByAddr(uint32_t addr)

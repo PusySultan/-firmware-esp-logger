@@ -16,6 +16,7 @@ enum cmd_type_t
 {
 	SHUTDOWN_MSG_CREATER = 0,
 	CREATE = 1,
+	INIT = 2
 };
 
 struct creater_block
