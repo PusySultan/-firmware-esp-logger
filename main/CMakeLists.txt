@@ -12,6 +12,10 @@ idf_component_register(
     	msgCreater/MessageCreater.cpp
     	
     	eventMenager/EventMenager.cpp
+    	eventMenager/EventMenagerOverride.cpp
+    	eventMenager/EventMenagerInitFunc.cpp
+    	eventMenager/EventMenagerKillFunc.cpp
+    	
     	eventMenager/events/IEvent.cpp
     	eventMenager/events/IEvent.cpp
     	eventMenager/events/SleepEvent.cpp
