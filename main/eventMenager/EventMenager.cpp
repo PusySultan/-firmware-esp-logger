@@ -4,27 +4,16 @@
  *  Created on: 13 апр. 2026 г.
  *      Author: Kirill
  */
-#include "CaseOpeningEvent.hpp"
-#include "EventTypes.hpp"
 #include "SleepEvent.hpp"
 #include "driver/gpio.h"
 #include "convertFunc.hpp"
-#include "NetworkTypes.hpp"
 #include "EventMenager.hpp"
-#include "UploaderTypes.hpp"
 #include "DateTimeSensor.hpp"
+#include "CaseOpeningEvent.hpp"
 #include "memory_w25q_const.hpp"
 #include "pins_config_const.hpp"
 #include "MessageCreaterTypes.hpp"
 #include "MsgFromServerProcessors.hpp"
-
-QueueHandle_t* EventMenager :: event_queue;
-QueueHandle_t* EventMenager :: storage_event_queue;
-QueueHandle_t* EventMenager :: sensor_event_queue;
-QueueHandle_t* EventMenager :: upload_event_queue;
-QueueHandle_t* EventMenager :: network_event_queue;
-QueueHandle_t* EventMenager :: create_event_queue;
-QueueHandle_t* EventMenager :: serverMsgProcessor_event_queue;
 
 EventMenager :: EventMenager ()
 {
@@ -61,7 +50,7 @@ void EventMenager :: fillFunctionMap()
 		this -> enebleTime = cmd -> dateTime;
 
 		this -> connectGND();
-				
+		this -> initMsgCreater();
 		this -> saveEnableEvent();
 		
 		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_CASE_OPEN_PIN, event_queue);
@@ -86,7 +75,6 @@ void EventMenager :: fillFunctionMap()
 		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> disableTime);
 		cmd -> dateTime = disableTime;
 		
-		// todo kill all process and go to sleep
 		this -> KILL_PROCESS_FLSG = true;
 
 		this -> killSensors();
@@ -188,40 +176,6 @@ void EventMenager :: fillFunctionMap()
 	};
 }
 
-void EventMenager :: overrideInternalQueue(QueueHandle_t* queue)
-{
-	event_queue = queue;
-}
-
-void EventMenager :: overrideStorageQueue(QueueHandle_t *queue)
-{
-	storage_event_queue = queue;
-}
-
-void EventMenager :: overrideSensorQueue(QueueHandle_t *queue)
-{
-	sensor_event_queue = queue;
-}
-
-void EventMenager :: overrideUploadQueue(QueueHandle_t *queue)
-{
-	upload_event_queue = queue;
-}
-
-void EventMenager :: overrideNetworkQueue(QueueHandle_t *queue)
-{
-	network_event_queue = queue;
-}
-
-void EventMenager :: overrideCreateQueue(QueueHandle_t *queue)
-{
-	create_event_queue = queue;
-}
-
-void EventMenager :: overrideSerMsgProcessQueue(QueueHandle_t* queue)
-{
-	serverMsgProcessor_event_queue = queue;
-}
 
 void EventMenager :: connectGND()
 {
@@ -256,24 +210,21 @@ void EventMenager :: saveEnableEvent()
 
 void EventMenager :: saveDisabeEvent()
 {
-	block_data time_block;
-	time_block.addr = ADDR_EVENT_DEVICE_OFF;
-	time_block.length = sizeof(disableTime);
-	memcpy(time_block.data, &disableTime, sizeof(disableTime));
-	
 	storage_cmd_t* reg_event_off = new storage_cmd_t;
 	
 	reg_event_off -> event_type = WRITE_BY_TRANS;
 	reg_event_off -> sectorAddr = ADDR_EVENT_DEVICE_OFF;
 	reg_event_off -> data_size = 1;
-	reg_event_off -> data[0] = time_block;
+	reg_event_off -> data[0].addr = ADDR_EVENT_DEVICE_OFF;
+	reg_event_off -> data[0].length = sizeof(disableTime);
+	memcpy(reg_event_off -> data[0].data, &disableTime, sizeof(disableTime));
 
 	xQueueSendToFront(*storage_event_queue, reg_event_off, 0);
 }
 
 void EventMenager :: saveJobIntervalTime()
 {
-	uint64_t seconds = disableTime.getDifferenceAsSeconds(enebleTime);
+	uint64_t seconds = disableTime.toSecondsShort() - enebleTime.toSecondsShort();
 
 	storage_cmd_t* reg_event_off = new storage_cmd_t;	
 	reg_event_off -> event_type = WRITE_BY_TRANS;
@@ -289,7 +240,7 @@ void EventMenager :: saveJobIntervalTime()
 void EventMenager :: saveTotalJobTime()
 {
 	uint64_t seconds = getTotalJobTime();
-	seconds += disableTime.getDifferenceAsSeconds(enebleTime);
+	seconds += disableTime.toSecondsShort();
 
 	storage_cmd_t* reg_event_off = new storage_cmd_t;
 	
@@ -326,139 +277,4 @@ uint64_t EventMenager :: getTotalJobTime()
 
 	delete storage_cmd;
 	return seconds;
-}
-
-void EventMenager :: initMsgCreater()
-{
-	create_cmd_t* cretae_init_cmd = new create_cmd_t;
-
-	cretae_init_cmd -> cmd_type = INIT;
-	cretae_init_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-
-	xQueueSend(*create_event_queue, &cretae_init_cmd, 0);
-	xSemaphoreTake(cretae_init_cmd -> sync_semaphore, portMAX_DELAY);
-	vSemaphoreDelete(cretae_init_cmd -> sync_semaphore);
-}
-
-void EventMenager :: initNetwork()
-{
-	network_cmd_t* network_cmd = new network_cmd_t;
-	
-	network_cmd -> event_type = INIT_SETTINGS;
-	network_cmd -> sync_semaphore = NULL;
-	
-	xQueueSend(*network_event_queue, &network_cmd, 0);
-}
-
-void EventMenager :: createSensor(SensorsID id)
-{
-	sensor_cmd_t* cmd_create_sensor = new sensor_cmd_t;
-	
-	cmd_create_sensor -> sensor_id  = id;
-	cmd_create_sensor -> event_type = SENSOR_CREATE;
-	cmd_create_sensor -> sync_semaphore = NULL;
-	
-	xQueueSend(*sensor_event_queue, &cmd_create_sensor, 0);
-}
-
-void EventMenager :: killSensors()
-{
-	// Сначала удалим задачу датчиков чтобы не спамили другие задачи
-	sensor_cmd_t* kill_process_sensor_cmd = new sensor_cmd_t;
-	
-	kill_process_sensor_cmd -> event_type = SHUTDOWN_SENSORS;
-	kill_process_sensor_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*sensor_event_queue, &kill_process_sensor_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_process_sensor_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_process_sensor_cmd -> sync_semaphore);
-	
-	delete kill_process_sensor_cmd;
-	
-	printf("Sensors processes clean\n");
-}
-
-void EventMenager :: killNetwork()
-{
-	// kill Network
-	network_cmd_t* kill_process_network_cmd = new network_cmd_t;
-	kill_process_network_cmd -> event_type = SHUTDOWN_NETWORK;
-	kill_process_network_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*network_event_queue, &kill_process_network_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_process_network_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_process_network_cmd -> sync_semaphore);
-	
-	delete kill_process_network_cmd;
-}
-
-void EventMenager :: initUpload()
-{
-	uploader_cmd_t* upload_cmd = new uploader_cmd_t;
-	
-	upload_cmd -> event_type = FIND_UPLOAD_ADDR;
-	upload_cmd -> sync_semaphore = NULL;
-	
-	xQueueSend(*upload_event_queue, &upload_cmd, 0);
-}
-
-void EventMenager :: killUpload()
-{
-	// kill upload
-	uploader_cmd_t* kill_process_upload_cmd = new uploader_cmd_t;
-	
-	kill_process_upload_cmd -> event_type = SHUTDOWN_UPLOAD;
-	kill_process_upload_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*upload_event_queue, &kill_process_upload_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_process_upload_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_process_upload_cmd -> sync_semaphore);
-	
-	delete 	kill_process_upload_cmd;
-	
-	printf("Uploader processes clean\n");
-}
-
-void EventMenager :: killCreater()
-{
-	// kill creater
-	create_cmd_t* kill_process_creater_cmd = new create_cmd_t;
-	
-	kill_process_creater_cmd -> cmd_type = SHUTDOWN_MSG_CREATER;
-	kill_process_creater_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*create_event_queue, &kill_process_creater_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_process_creater_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_process_creater_cmd -> sync_semaphore);
-	
-	delete kill_process_creater_cmd;
-	
-	printf("Creater processes clean\n");
-}
-
-void EventMenager :: killMsgProcessor()
-{
-	// kill msgProcessor
-	msg_server_cmd* kill_process_server_cmd = new msg_server_cmd;
-	kill_process_server_cmd -> event_type = SHUTDOWN_SERVER_PROCESSOR;
-	kill_process_server_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*serverMsgProcessor_event_queue, &kill_process_server_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_process_server_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_process_server_cmd -> sync_semaphore);
-	
-	delete kill_process_server_cmd;
-}
-
-void EventMenager :: killStorage()
-{
-	storage_cmd_t* kill_storage_process_cmd = new storage_cmd_t;
-	kill_storage_process_cmd -> event_type = SHUTDOWN_STORAGE;
-	kill_storage_process_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	
-	xQueueSend(*storage_event_queue, &kill_storage_process_cmd, pdMS_TO_TICKS(10000));
-	xSemaphoreTake(kill_storage_process_cmd -> sync_semaphore, pdMS_TO_TICKS(30000));
-	vSemaphoreDelete(kill_storage_process_cmd -> sync_semaphore);
-	
-	delete kill_storage_process_cmd;
 }
