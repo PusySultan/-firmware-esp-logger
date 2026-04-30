@@ -21,34 +21,16 @@ struct DateTime
 	uint8_t month;
 	uint8_t day;
 	uint8_t year;
-	
-	// Преобразование даты в количество секунд с начала эпохи 2000-01-01 00:00:00
-    uint64_t toSeconds() const
-	{
-        const uint64_t SECONDS_PER_DAY = 86400;
-        uint64_t days = daysSinceEpoch(getFullYear(), month, date);
-        uint64_t secondsToday = seconds + minutes * 60u + hours * 3600u;
-        return days * SECONDS_PER_DAY + secondsToday;
-    }
 
-	/**
+     /**
      * Возвращает абсолютную разницу в секундах между текущей датой и другой.
      * @param other другая дата
-     * @return количество секунд между датами (всегда неотрицательное)
-     * @note Работает корректно для любых дат в пределах эпохи,
-     *       но предполагает, что разница не превышает ~584 миллиона лет (в пределах uint64_t).
-     *       Для вашего случая с year в uint8_t разница максимум 255 лет — вполне безопасно.
+     * @return количество секунд в дате
+     * @note Работает корректно для любых дат в пределах до 28 дней (месяца)
      */
-    uint64_t getDifferenceAsSeconds(const DateTime& other) const
-	{
-        uint64_t selfSec = this -> toSeconds();
-        uint64_t otherSec = other.toSeconds();
-
-        return (selfSec >= otherSec) ? (selfSec - otherSec) : (otherSec - selfSec);
-    }
-
-	uint16_t getFullYear() const {
-        return 2000 + year;
+    uint64_t toSecondsShort()
+    {
+        return seconds + (minutes * 60) + (hours * 60 * 60) + (date * 24 * 60 * 60);
     }
 
 	void toString(char* buffer)
@@ -67,11 +49,6 @@ struct DateTime
         memcpy(this, in, sizeof(*this));
     }
     
-	// Проверка, является ли год високосным (григорианский календарь)
-    static bool isLeapYear(uint16_t fullYear) {
-        return (fullYear % 4 == 0) && (fullYear % 100 != 0 || fullYear % 400 == 0);
-    }
-
     static DateTime fromStringStatic(char dtStr[19])
     {
 		// 2026-04-12 14:08:49
@@ -101,36 +78,6 @@ struct DateTime
         DateTime dt;
         memcpy(&dt, in, sizeof(dt));
         return dt;
-    }
-
-	// Количество дней в месяце (с учётом високосности)
-    static uint8_t daysInMonth(uint16_t fullYear, uint8_t month)
-	{
-        static const uint8_t days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-        if (month == 2 && isLeapYear(fullYear)) return 29;
-        return days[month - 1];
-    }
-
-	 // Количество дней от эпохи 2000-01-01 до заданной даты (не включая текущий день полностью)
-    static uint64_t daysSinceEpoch(uint16_t fullYear, uint8_t month, uint8_t day)
-	{
-        uint64_t days = 0;
-
-        // Суммируем дни за полные годы от 2000 до года перед fullYear
-        for (uint16_t y = 2000; y < fullYear; ++y)
-		{
-            days += isLeapYear(y) ? 366 : 365;
-        }
-        // Суммируем дни за полные месяцы текущего года
-        for (uint8_t m = 1; m < month; ++m)
-		{
-            days += daysInMonth(fullYear, m);
-        }
-        
-		// Добавляем дни в текущем месяце (минус 1, потому что сегодняшний день ещё не закончился)
-        days += (day - 1);
-        return days;
     }
 } __attribute__((packed));
 
