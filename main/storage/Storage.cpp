@@ -48,13 +48,9 @@ esp_err_t Storage :: eventProcessor(storage_cmd_t* cmd)
 	}
 	
 	xSemaphoreTake(this -> memory -> semaphore, portMAX_DELAY);
-	
-	printf("in  storage: %i", cmd -> event_type);
 	this -> functionMap[cmd -> event_type](cmd);
-	
 	xSemaphoreGive(this -> memory -> semaphore);
 	
-	printf("processor end\n");
 	return ESP_OK;
 }
 	   
