@@ -97,6 +97,10 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 	    // COLLECTION
 	    collection_t collection = UNKNOW_COLLECTION;
 	    cJSON* collection_item = cJSON_GetObjectItem(root, "collection");
+		if(collection_item == NULL) {
+			return;
+		}
+
 	    collection = string_to_collection(collection_item -> valuestring); 
 	    
 		if(collection == UNKNOW_COLLECTION) {
