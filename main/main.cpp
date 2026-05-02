@@ -48,7 +48,6 @@ void startBaseInit()
 	server_msg_processor = new MsgFromServerProcessors();
 	
 	overrideQueues();
-	
 	sendStartEvents();
 }
 
