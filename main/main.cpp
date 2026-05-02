@@ -1,5 +1,7 @@
 
 #include "main.hpp"
+#include "Notification.hpp"
+#include "NotificationTypes.hpp"
 #include "memory_w25q_const.hpp"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
@@ -37,51 +39,15 @@ void startBaseInit()
 	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
 	
 	storage = new Storage();
-	network = new NetworkMenager();
-	sensor = new SensorMenager();
 	uploader = new Uploader();
+	notif = new Notification();
+	sensor = new SensorMenager();
+	network = new NetworkMenager();
 	creater = new MessageCreater();
-	server_msg_processor = new MsgFromServerProcessors();
 	eventMenager = new EventMenager();
+	server_msg_processor = new MsgFromServerProcessors();
 	
-	network_event_queue = xQueueCreate(3, sizeof(network_cmd_t*));
-	storage_event_queue = xQueueCreate(20,  sizeof(storage_cmd_t*));
-	sensor_event_queue  = xQueueCreate(20,  sizeof(sensor_cmd_t*));
-	upload_event_queue  = xQueueCreate(10,  sizeof(uploader_cmd_t*));
-	create_event_queue  = xQueueCreate(20, sizeof(create_cmd_t*));
-	serverMsgProcessor_event_queue = xQueueCreate(10, sizeof(char*));
-	event_queue = xQueueCreate(5, sizeof(event_cmd_t*));
-
-	storage -> overrideInternalQueue(&storage_event_queue);
-	storage -> overrideUploadQueue(&upload_event_queue);
-	storage -> overrideMsgCreaterQueue(&create_event_queue);
-	
-	creater -> overrideInternalQueue(&create_event_queue);
-	creater -> overrideNetworkQueue(&network_event_queue);
-	creater -> overridStorageQueue(&storage_event_queue);
-
-	network -> overrideInternalQueue(&network_event_queue);
-	network -> overrideStorageQueue(&storage_event_queue);
-	network -> overrideUploadQueue(&upload_event_queue);
-	network -> overrideDesirializerQueue(&serverMsgProcessor_event_queue);
-	
-	sensor -> overrideInternalQueue(&sensor_event_queue);
-	sensor -> overrideStorageQueue(&storage_event_queue);
-	
-	uploader -> overrideInternalQueue(&upload_event_queue);
-	uploader -> overrideStorageQueue(&storage_event_queue);
-	uploader -> overrideCreaterQueue(&create_event_queue);
-		
-	server_msg_processor -> overrideInternalQueue(&serverMsgProcessor_event_queue);
-	server_msg_processor -> overrideStorageQueue(&storage_event_queue);
-	
-	eventMenager -> overrideInternalQueue(&event_queue);
-	eventMenager -> overrideStorageQueue(&storage_event_queue);
-	eventMenager -> overrideNetworkQueue(&network_event_queue);
-	eventMenager -> overrideSensorQueue(&sensor_event_queue);
-	eventMenager -> overrideUploadQueue(&upload_event_queue);
-	eventMenager -> overrideCreateQueue(&create_event_queue);
-	eventMenager -> overrideSerMsgProcessQueue(&serverMsgProcessor_event_queue);
+	overrideQueues();
 	
 	sendStartEvents();
 }
@@ -113,7 +79,6 @@ void byby()
 {
 	const uint64_t WAKEUP_PIN_BITMASK = (1ULL << EVENT_CASE_OPEN_PIN) | (1ULL <<  EVENT_VOLTAGE_OFF_PIN);
 	esp_sleep_enable_ext1_wakeup(WAKEUP_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
-
 
 	gpio_set_direction(GREEN_COLOR_PIN, GPIO_MODE_OUTPUT);
 	gpio_set_level(GREEN_COLOR_PIN, 1);
@@ -176,3 +141,47 @@ void regCaseOpening()
 	xQueueSend(storage_event_queue, storage_cmd,  pdMS_TO_TICKS(30000));
 }
 
+void overrideQueues()
+{
+	event_queue = xQueueCreate(5, sizeof(event_cmd_t*));
+	notif_event_queue = xQueueCreate(3, sizeof(notif_cmd_t*));
+	network_event_queue = xQueueCreate(3, sizeof(network_cmd_t*));
+	storage_event_queue = xQueueCreate(20,  sizeof(storage_cmd_t*));
+	sensor_event_queue  = xQueueCreate(20,  sizeof(sensor_cmd_t*));
+	upload_event_queue  = xQueueCreate(10,  sizeof(uploader_cmd_t*));
+	create_event_queue  = xQueueCreate(20, sizeof(create_cmd_t*));
+	serverMsgProcessor_event_queue = xQueueCreate(10, sizeof(char*));
+
+	storage -> overrideInternalQueue(&storage_event_queue);
+	storage -> overrideUploadQueue(&upload_event_queue);
+	storage -> overrideMsgCreaterQueue(&create_event_queue);
+	
+	creater -> overrideInternalQueue(&create_event_queue);
+	creater -> overrideNetworkQueue(&network_event_queue);
+	creater -> overridStorageQueue(&storage_event_queue);
+
+	network -> overrideInternalQueue(&network_event_queue);
+	network -> overrideStorageQueue(&storage_event_queue);
+	network -> overrideUploadQueue(&upload_event_queue);
+	network -> overrideDesirializerQueue(&serverMsgProcessor_event_queue);
+	
+	sensor -> overrideInternalQueue(&sensor_event_queue);
+	sensor -> overrideStorageQueue(&storage_event_queue);
+	
+	uploader -> overrideInternalQueue(&upload_event_queue);
+	uploader -> overrideStorageQueue(&storage_event_queue);
+	uploader -> overrideCreaterQueue(&create_event_queue);
+		
+	server_msg_processor -> overrideInternalQueue(&serverMsgProcessor_event_queue);
+	server_msg_processor -> overrideStorageQueue(&storage_event_queue);
+	
+	eventMenager -> overrideInternalQueue(&event_queue);
+	eventMenager -> overrideStorageQueue(&storage_event_queue);
+	eventMenager -> overrideNetworkQueue(&network_event_queue);
+	eventMenager -> overrideSensorQueue(&sensor_event_queue);
+	eventMenager -> overrideUploadQueue(&upload_event_queue);
+	eventMenager -> overrideCreateQueue(&create_event_queue);
+	eventMenager -> overrideSerMsgProcessQueue(&serverMsgProcessor_event_queue);
+	
+	notif -> overrideInternalQueue(&notif_event_queue);
+}
