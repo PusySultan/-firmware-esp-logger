@@ -9,10 +9,12 @@
 #define MAIN_NOTIFICATION_NOTIFICATIONTYPES_HPP_
 
 #include <stdint.h>
+#include "soc/gpio_num.h"
+
 enum notification_event_type_t
 {
     SHUTDOWN_NOTIF = 0,
-    INIT = 1,
+    INIT_NOTIF = 1,
     NOTIFICATE = 2
 };
 
@@ -27,7 +29,9 @@ struct notif_cmd_t
 {
     notification_event_type_t notification_event_type;
     notification_source_t notif_source;
-    uint8_t duration;
+    uint8_t duration_ms;
+
+	gpio_num_t led_gpio;    
 };
 
 
