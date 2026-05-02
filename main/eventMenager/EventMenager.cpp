@@ -50,18 +50,18 @@ void EventMenager :: fillFunctionMap()
 	this -> eventProcessors[DEVICE_EVENT_ON] = [this](event_cmd_t* cmd)
 	{
 		this -> enebleTime = cmd -> dateTime;
-
 		this -> connectGND();
 		this -> initMsgCreater();
 		this -> saveEnableEvent();
 		
 		this -> _caseOpeningEvent = new CaseOpeningEvent(EVENT_CASE_OPEN_PIN, event_queue);
-		this -> _voltageOffEvent = new SleepEvent(EVENT_VOLTAGE_OFF_PIN ,event_queue);
+		// this -> _voltageOffEvent = new SleepEvent(EVENT_VOLTAGE_OFF_PIN ,event_queue);
 
 		this -> createSensor(TEMP_SENSOR_1_ID);
 		this -> createSensor(TEMP_SENSOR_2_ID);
 		// this -> createSensor(TEMP_SENSOR_3_ID);
 		// this -> createSensor(TEMP_SENSOR_C_ID);
+		this -> createSensor(DUST_SENSOR_1_ID);
 		// this -> createSensor(DUST_SENSOR_2_ID);
 		
 		this -> initNetwork();
@@ -72,10 +72,10 @@ void EventMenager :: fillFunctionMap()
 	
 	this -> eventProcessors[DEVICE_EVENT_OFF] = [this](event_cmd_t* cmd)
 	{
-		// printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
+		printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
 		
-		gpio_set_direction(RED_COLOR_PIN, GPIO_MODE_OUTPUT);
-		gpio_set_level(RED_COLOR_PIN, 0);
+		gpio_set_direction(GREEN_COLOR_PIN, GPIO_MODE_OUTPUT);
+		gpio_set_level(GREEN_COLOR_PIN, 1);
 		
 		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> disableTime);
 		cmd -> dateTime = disableTime;
@@ -89,10 +89,12 @@ void EventMenager :: fillFunctionMap()
 		// this -> killNetwork();
 
 		// this -> saveDisabeEvent();
-		this -> saveJobIntervalTime();
-		this -> saveTotalJobTime();
+		// this -> saveJobIntervalTime();
+		// this -> saveTotalJobTime();
 
-		this -> killStorage();
+		// this -> killStorage();
+
+		vTaskDelay(pdMS_TO_TICKS(5000));
 		delete cmd;
 	};	
 

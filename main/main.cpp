@@ -113,6 +113,11 @@ void byby()
 {
 	const uint64_t WAKEUP_PIN_BITMASK = (1ULL << EVENT_CASE_OPEN_PIN) | (1ULL <<  EVENT_VOLTAGE_OFF_PIN);
 	esp_sleep_enable_ext1_wakeup(WAKEUP_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
+
+
+	gpio_set_direction(GREEN_COLOR_PIN, GPIO_MODE_OUTPUT);
+	gpio_set_level(GREEN_COLOR_PIN, 1);
+
 	esp_deep_sleep_start();
 }
 

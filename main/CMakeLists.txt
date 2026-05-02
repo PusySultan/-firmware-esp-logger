@@ -11,6 +11,8 @@ idf_component_register(
         dateTime/DateTimeSensor.cpp
     	msgCreater/MessageCreater.cpp
     	
+    	notification/Notification.cpp
+    	
     	eventMenager/EventMenager.cpp
     	eventMenager/EventMenagerOverride.cpp
     	eventMenager/EventMenagerInitFunc.cpp
@@ -42,6 +44,7 @@ idf_component_register(
     	dateTime
     	msgCreater
     	memoryW25Q
+    	Notification
     	
     	eventMenager
     	eventMenager/events
