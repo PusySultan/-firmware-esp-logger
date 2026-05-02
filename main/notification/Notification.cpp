@@ -58,15 +58,18 @@ void Notification :: fillNotifMap()
 	{
 		this -> turn_off_pins_except(cmd -> led_gpio);
 
-		bool level = 0;
-		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++) {
-			gpio_set_level(cmd -> led_gpio, level);
-			vTaskDelay(500);
+		bool level = 1;
+
+		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
+		{
+			gpio_set_level(cmd -> led_gpio, level ? 1 : 0);
+			vTaskDelay(5);
 
 			level = !level;
 		}
 
 		gpio_set_level(cmd -> led_gpio, 0);
+
 		delete cmd;
 	};
 
@@ -78,19 +81,21 @@ void Notification :: fillNotifMap()
 	functionMap[LED_NOISE] = [this] (notif_cmd_t* cmd)
 	{
 		this -> turn_off_pins_except(cmd -> led_gpio);
-		bool level = 0;
-		
-		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++) {
-			gpio_set_level(cmd -> led_gpio, level);
-			vTaskDelay(500);
+
+		bool level = 1;
+
+		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
+		{
+			gpio_set_level(cmd -> led_gpio, level ? 1 : 0);
+			vTaskDelay(50);
 
 			level = !level;
 		}
 
 		gpio_set_level(cmd -> led_gpio, 0);
+
 		delete cmd;
 	};
-
 }
 
 void Notification :: turn_off_pins_except(gpio_num_t gpio_num_except)

@@ -188,8 +188,11 @@ void notif_task(void *pvParameters)
 		if(xQueueReceive(notif_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
 		{
 			if(!myNotif) {
-				myNotif ->notifProcessor(cmd);
+				delete cmd;
+				continue;
 			}
+			
+			myNotif -> notifProcessor(cmd);
 		}
 	}
 	

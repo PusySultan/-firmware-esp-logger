@@ -50,6 +50,8 @@ void EventMenager :: fillFunctionMap()
 	this -> eventProcessors[DEVICE_EVENT_ON] = [this](event_cmd_t* cmd)
 	{
 		this -> enebleTime = cmd -> dateTime;
+		this -> notif_turn_on_device();
+
 		this -> connectGND();
 		this -> initMsgCreater();
 		this -> saveEnableEvent();

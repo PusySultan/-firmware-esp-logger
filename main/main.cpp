@@ -175,11 +175,12 @@ void overrideQueues()
 	server_msg_processor -> overrideStorageQueue(&storage_event_queue);
 	
 	eventMenager -> overrideInternalQueue(&event_queue);
-	eventMenager -> overrideStorageQueue(&storage_event_queue);
-	eventMenager -> overrideNetworkQueue(&network_event_queue);
+	eventMenager -> overrideNotifQueue(&notif_event_queue);
 	eventMenager -> overrideSensorQueue(&sensor_event_queue);
 	eventMenager -> overrideUploadQueue(&upload_event_queue);
 	eventMenager -> overrideCreateQueue(&create_event_queue);
+	eventMenager -> overrideStorageQueue(&storage_event_queue);
+	eventMenager -> overrideNetworkQueue(&network_event_queue);
 	eventMenager -> overrideSerMsgProcessQueue(&serverMsgProcessor_event_queue);
 	
 	myNotif -> overrideInternalQueue(&notif_event_queue);
