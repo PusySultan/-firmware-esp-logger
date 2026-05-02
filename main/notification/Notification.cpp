@@ -28,6 +28,30 @@ void Notification :: overrideInternalQueue(QueueHandle_t* queue)
 	notification_event_queue = queue;
 }
 
+void Notification :: notifProcessor(notif_cmd_t* cmd)
+{
+	if(!cmd) {
+		printf("error cmd in NULL (Notification.eventProcessor)\n");
+		return;
+	}
+
+	if(cmd -> event_type < 0) {
+		printf("error incorrect cmd type (Notification.eventProcessor)\n");
+		return;
+	}
+
+	if(cmd -> event_type == SHUTDOWN_NOTIF) {
+		// todo create SHUTDOWN
+	}
+
+	if(!functionMap.contains(cmd -> notif_source)) {
+		printf("error has not func with id: %d\n (Notification.eventProcessor)", cmd -> event_type);
+		return;
+	}
+
+	functionMap[cmd -> notif_source](cmd);
+}
+
 void Notification :: fillNotifMap()
 {
 	functionMap[LED] = [this] (notif_cmd_t* cmd)
