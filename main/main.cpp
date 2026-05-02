@@ -40,7 +40,7 @@ void startBaseInit()
 	
 	storage = new Storage();
 	uploader = new Uploader();
-	notif = new Notification();
+	myNotif = new Notification();
 	sensor = new SensorMenager();
 	network = new NetworkMenager();
 	creater = new MessageCreater();
@@ -182,5 +182,5 @@ void overrideQueues()
 	eventMenager -> overrideCreateQueue(&create_event_queue);
 	eventMenager -> overrideSerMsgProcessQueue(&serverMsgProcessor_event_queue);
 	
-	notif -> overrideInternalQueue(&notif_event_queue);
+	myNotif -> overrideInternalQueue(&notif_event_queue);
 }

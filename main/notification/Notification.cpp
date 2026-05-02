@@ -81,7 +81,7 @@ void Notification :: turn_off_pins_except(gpio_num_t gpio_num_except)
 {
 	for(uint8_t i = 0; i < 3; i++)
 	{
-		if(gpio_num_except != gpio_num_except) continue;
+		if(led_pins[i] != gpio_num_except) continue;
 		gpio_set_level(led_pins[i], 0);
 	}
 }

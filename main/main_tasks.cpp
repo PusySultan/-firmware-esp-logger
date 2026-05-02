@@ -172,6 +172,22 @@ void desirializer_task(void *pvParameters)
 	}
 }
 
+void network_task(void *pvParameters)
+{
+	notif_cmd_t* cmd;
+
+	while (true)
+	{
+		if(xQueueReceive(notif_event_queue, &cmd, portMAX_DELAY) == pdTRUE)
+		{
+			if(!myNotif) {
+				myNotif ->notifProcessor(cmd);
+			}
+		}
+	}
+	
+}
+
 void event_task(void *pvParameters)
 {
 	event_cmd_t* cmd;

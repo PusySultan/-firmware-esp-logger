@@ -24,7 +24,7 @@ inline esp_sleep_wakeup_cause_t wakeup;
 // class pointers
 inline Storage* storage;
 inline Uploader* uploader;
-inline Notification* notif;
+inline Notification* myNotif;
 inline SensorMenager* sensor;
 inline MessageCreater* creater;
 inline NetworkMenager* network;
