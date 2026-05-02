@@ -9,11 +9,12 @@
 #include "EventMenager.hpp"
 
 QueueHandle_t* EventMenager :: event_queue;
-QueueHandle_t* EventMenager :: storage_event_queue;
+QueueHandle_t* EventMenager :: notif_event_queue;
+QueueHandle_t* EventMenager :: create_event_queue;
 QueueHandle_t* EventMenager :: sensor_event_queue;
 QueueHandle_t* EventMenager :: upload_event_queue;
+QueueHandle_t* EventMenager :: storage_event_queue;
 QueueHandle_t* EventMenager :: network_event_queue;
-QueueHandle_t* EventMenager :: create_event_queue;
 QueueHandle_t* EventMenager :: serverMsgProcessor_event_queue;
 
 
@@ -50,4 +51,9 @@ void EventMenager :: overrideCreateQueue(QueueHandle_t *queue)
 void EventMenager :: overrideSerMsgProcessQueue(QueueHandle_t* queue)
 {
 	serverMsgProcessor_event_queue = queue;
+}
+
+void EventMenager :: overrideNotifQueue(QueueHandle_t* queue)
+{
+	notif_event_queue = queue;
 }

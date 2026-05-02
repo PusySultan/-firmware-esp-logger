@@ -29,7 +29,7 @@ struct notif_cmd_t
 {
     notification_event_type_t event_type;
     notification_source_t notif_source;
-    uint8_t duration_ms;
+    uint8_t blink_iteration;
 
 	gpio_num_t led_gpio;    
 };

@@ -10,6 +10,13 @@
 
 void createTasks()
 {
+	xTaskCreate(notif_task,
+			    "Notif task",
+			    1000,
+			    NULL,
+			    8,
+			    &notifTaskHundle);
+		
 		xTaskCreate(network_task,
 			    "Network task",
 			    8192,
@@ -172,7 +179,7 @@ void desirializer_task(void *pvParameters)
 	}
 }
 
-void network_task(void *pvParameters)
+void notif_task(void *pvParameters)
 {
 	notif_cmd_t* cmd;
 

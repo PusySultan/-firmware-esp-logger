@@ -27,12 +27,13 @@ class EventMenager final
 		
 		void eventProcessor(event_cmd_t*);
 		
-		void static overrideInternalQueue(QueueHandle_t* queue);
-		void static overrideStorageQueue(QueueHandle_t* queue);
-		void static overrideSensorQueue(QueueHandle_t* queue);
+		void static overrideNotifQueue(QueueHandle_t* queue);
 		void static overrideUploadQueue(QueueHandle_t* queue);
-		void static overrideNetworkQueue(QueueHandle_t* queue);
 		void static overrideCreateQueue(QueueHandle_t* queue);
+		void static overrideSensorQueue(QueueHandle_t* queue);
+		void static overrideNetworkQueue(QueueHandle_t* queue);
+		void static overrideStorageQueue(QueueHandle_t* queue);
+		void static overrideInternalQueue(QueueHandle_t* queue);
 		void static overrideSerMsgProcessQueue(QueueHandle_t* queue);
 
 		IEvent* caseOpeningEvent;
@@ -41,11 +42,12 @@ class EventMenager final
 			  		
 	private:
 		static QueueHandle_t* event_queue;
-		static QueueHandle_t* storage_event_queue;
+		static QueueHandle_t* notif_event_queue;
+		static QueueHandle_t* create_event_queue;
 		static QueueHandle_t* sensor_event_queue;
 		static QueueHandle_t* upload_event_queue;
 		static QueueHandle_t* network_event_queue;
-		static QueueHandle_t* create_event_queue;
+		static QueueHandle_t* storage_event_queue;
 		static QueueHandle_t* serverMsgProcessor_event_queue;
 	
 		CaseOpeningEvent* _caseOpeningEvent;
@@ -62,11 +64,13 @@ class EventMenager final
 		void connectGND();
 		void fillFunctionMap();
 	
+		// init func
 		void initUpload();
 		void initNetwork();
 		void initMsgCreater();
 		void createSensor(SensorsID);
 
+		// kill func
 		void killStorage();
 		void killNetwork();
 		void killUpload();
@@ -80,6 +84,9 @@ class EventMenager final
 		void saveTotalJobTime();
 
 		uint64_t getTotalJobTime();
+
+		// notif func
+		void notif_turn_on_device();
 };
 
 #endif /* MAIN_EVENTMENAGER_EVENTMENAGER_HPP_ */

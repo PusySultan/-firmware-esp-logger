@@ -57,9 +57,17 @@ void Notification :: fillNotifMap()
 	functionMap[LED] = [this] (notif_cmd_t* cmd)
 	{
 		this -> turn_off_pins_except(cmd -> led_gpio);
-		gpio_set_level(cmd -> led_gpio, 1);
 
-		vTaskDelay(cmd -> duration_ms);
+		bool level = 0;
+		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++) {
+			gpio_set_level(cmd -> led_gpio, level);
+			vTaskDelay(500);
+
+			level = !level;
+		}
+
+		gpio_set_level(cmd -> led_gpio, 0);
+		delete cmd;
 	};
 
 	functionMap[NOISE] = [] (notif_cmd_t* cmd)
@@ -70,9 +78,17 @@ void Notification :: fillNotifMap()
 	functionMap[LED_NOISE] = [this] (notif_cmd_t* cmd)
 	{
 		this -> turn_off_pins_except(cmd -> led_gpio);
-		gpio_set_level(cmd -> led_gpio, 1);
+		bool level = 0;
+		
+		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++) {
+			gpio_set_level(cmd -> led_gpio, level);
+			vTaskDelay(500);
 
-		vTaskDelay(cmd -> duration_ms);
+			level = !level;
+		}
+
+		gpio_set_level(cmd -> led_gpio, 0);
+		delete cmd;
 	};
 
 }

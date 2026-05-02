@@ -14,6 +14,7 @@ idf_component_register(
     	notification/Notification.cpp
     	
     	eventMenager/EventMenager.cpp
+    	eventMenager/EventMenagerNotifFunc
     	eventMenager/EventMenagerOverride.cpp
     	eventMenager/EventMenagerInitFunc.cpp
     	eventMenager/EventMenagerKillFunc.cpp
