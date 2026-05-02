@@ -27,7 +27,7 @@ enum notification_source_t
 
 struct notif_cmd_t
 {
-    notification_event_type_t notification_event_type;
+    notification_event_type_t event_type;
     notification_source_t notif_source;
     uint8_t duration_ms;
 

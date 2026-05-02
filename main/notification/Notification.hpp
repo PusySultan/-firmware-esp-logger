@@ -21,8 +21,8 @@ class Notification final
     public:
       Notification ();
       virtual ~Notification ();
-      
-    void static overrideInternalQueue(QueueHandle_t*);
+      void notifProcessor(notif_cmd_t*);
+      void static overrideInternalQueue(QueueHandle_t*);
 
     private:
       static QueueHandle_t* notification_event_queue;
