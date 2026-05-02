@@ -73,7 +73,7 @@ void startSpecialInit();
 
 void clearQueue();
 void killedTasks();
-void byby();    /// уход ко сну
+void byby();                        /// уход ко сну
 wekup_sourse_t getWekupSourse();
 
 
