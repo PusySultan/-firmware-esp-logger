@@ -57,17 +57,17 @@ void Uploader:: eventProcessor(uploader_cmd_t* cmd)
 	}
 	
 	if(!cmd) {
-		printf("error in Storage.eventProcessor cmd in NULL (Uploader.eventProcessor)\n");
+		printf("error cmd in NULL (Uploader.eventProcessor)\n");
 		return;
 	}
 	
 	if(cmd -> event_type < 0) {
-		printf("error in Storage.eventProcessor cmd in NULL (Uploader.eventProcessor)\n");
+		printf("error incorrect cmd type (Uploader.eventProcessor)\n");
 		return;
 	}
 	
 	if(!functionMap.contains(cmd -> event_type)) {
-		printf("error in Storage.eventProcessor has not func with id: %d\n (Uploader.eventProcessor)", cmd -> event_type);
+		printf("error has not func with id: %d\n (Uploader.eventProcessor)", cmd -> event_type);
 		return;
 	}
 	
