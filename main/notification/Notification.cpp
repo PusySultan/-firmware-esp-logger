@@ -109,8 +109,12 @@ void Notification :: turn_off_pins_except(gpio_num_t gpio_num_except)
 
 void Notification :: init()
 {
-	// todo init Buzzer
+	this -> initLed();
+	this -> initBuzzer();
+}
 
+void Notification :: initLed()
+{
 	gpio_reset_pin(RED_COLOR_PIN);
 	gpio_reset_pin(GREEN_COLOR_PIN);
 	gpio_reset_pin(BLUE_COLOR_PIN);
@@ -121,5 +125,16 @@ void Notification :: init()
 		
 	gpio_set_level(RED_COLOR_PIN, 0);
 	gpio_set_level(GREEN_COLOR_PIN, 0);
-	gpio_set_level(BLUE_COLOR_PIN, 0);
+	gpio_set_level(BLUE_COLOR_PIN, 0);	
+}
+
+void Notification ::  initBuzzer()
+{
+	timer_config = new ledc_timer_config_t;
+	timer_config -> speed_mode = LEDC_SPEED_MODE_MAX;
+	timer_config -> freq_hz = 40000;
+	timer_config -> timer_num = LEDC_TIMER_0;
+	timer_config -> clk_cfg = LEDC_AUTO_CLK;
+	timer_config -> duty_resolution = LEDC_TIMER_10_BIT; // Разрешение 10 бит
+
 }

@@ -10,6 +10,7 @@
 
 #include <map>
 #include <functional>
+#include "driver/ledc.h"
 #include "freertos/FreeRTOS.h"
 #include "NotificationTypes.hpp"
 #include "pins_config_const.hpp"
@@ -30,7 +31,14 @@ class Notification final
       gpio_num_t led_pins[3] {RED_COLOR_PIN, BLUE_COLOR_PIN, GREEN_COLOR_PIN};
       std::map<notification_source_t, func> functionMap;
 
+      // конфиги ШИМа
+      ledc_timer_config_t*	timer_config;
+      ledc_channel_config_t* chanel_config;
+
       void init();
+      void initLed();
+      void initBuzzer();
+      
       void fillNotifMap();
       void turn_off_pins_except(gpio_num_t);
 };
