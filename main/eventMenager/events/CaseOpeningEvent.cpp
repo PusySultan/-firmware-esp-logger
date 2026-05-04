@@ -40,9 +40,6 @@ CaseOpeningEvent::~CaseOpeningEvent ()
 
 void IRAM_ATTR CaseOpeningEvent :: callback(void* arg)
 {
-	  // Очищаем флаг прерывания GPIO
-    // gpio_ll_clear_intr_status(GPIO_PIN_MASK[VOLTAGE_OBSERVER_PIN]);
-    
 	gpio_intr_disable(isr_pin);
 	
 	isr_event = new event_cmd_t;

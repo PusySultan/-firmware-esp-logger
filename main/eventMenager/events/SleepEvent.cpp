@@ -15,7 +15,7 @@ gpio_num_t SleepEvent :: isr_pin;
 SleepEvent :: SleepEvent (gpio_num_t PIN, QueueHandle_t* _global_event_queue) : IEvent()
 {
     global_event_queue = _global_event_queue;
-	 isr_pin = PIN;
+	isr_pin = PIN;
 
     gpio_config_t gp_config = {
         .pin_bit_mask = (1ULL << isr_pin),
@@ -36,9 +36,6 @@ SleepEvent :: ~SleepEvent ()
 
 void IRAM_ATTR SleepEvent:: callback(void* arg)
 {
-	  // Очищаем флаг прерывания GPIO
-    // gpio_ll_clear_intr_status(GPIO_PIN_MASK[VOLTAGE_OBSERVER_PIN]);
-    
 	gpio_intr_disable(isr_pin);
 	
 	isr_event = new event_cmd_t;
