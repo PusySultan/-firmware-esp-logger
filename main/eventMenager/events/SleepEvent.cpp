@@ -22,7 +22,7 @@ SleepEvent :: SleepEvent (gpio_num_t PIN, QueueHandle_t* _global_event_queue) : 
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_NEGEDGE		    // Прерывание 1 -> 0
+        .intr_type = GPIO_INTR_LOW_LEVEL		    // Прерывание 1 -> 0
     };
 
     gpio_config(&gp_config);

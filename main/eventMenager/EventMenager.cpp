@@ -81,6 +81,8 @@ void EventMenager :: fillFunctionMap()
 		
 		this -> KILL_PROCESS_FLSG = true;
 
+		this -> notif_turn_off_pin();
+
 		// this -> killSensors();
 		// this -> killUpload();
 		// this -> killCreater();

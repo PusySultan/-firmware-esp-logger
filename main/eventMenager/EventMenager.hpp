@@ -87,6 +87,7 @@ class EventMenager final
 
 		// notif func
 		void notif_turn_on_device();
+		void notif_turn_off_pin();
 };
 
 #endif /* MAIN_EVENTMENAGER_EVENTMENAGER_HPP_ */
