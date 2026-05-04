@@ -75,7 +75,16 @@ void Notification :: fillNotifMap()
 
 	functionMap[NOISE] = [] (notif_cmd_t* cmd)
 	{
-		
+		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, DUTY);
+		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+
+		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
+		{
+			vTaskDelay(5);
+		}
+
+		ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
+		delete cmd;
 	};
 
 	functionMap[LED_NOISE] = [this] (notif_cmd_t* cmd)
@@ -83,15 +92,28 @@ void Notification :: fillNotifMap()
 		this -> turn_off_pins_except(cmd -> led_gpio);
 
 		bool level = 1;
+		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, DUTY);
+		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
 
 		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
 		{
-			gpio_set_level(cmd -> led_gpio, level ? 1 : 0);
-			vTaskDelay(50);
+			// gpio_set_level(GPIO_NUM_12, 1);
 
+			if(level) {
+				gpio_set_level(cmd -> led_gpio, 1);
+				// ledc_timer_resume(LEDC_MODE, LEDC_TIMER);
+			} else{
+				// ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
+				gpio_set_level(cmd -> led_gpio, 0);
+			}
+			
+			vTaskDelay(10);
 			level = !level;
 		}
 
+		ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
+
+		// gpio_set_level(GPIO_NUM_12, 1);
 		gpio_set_level(cmd -> led_gpio, 0);
 
 		delete cmd;
@@ -130,11 +152,44 @@ void Notification :: initLed()
 
 void Notification ::  initBuzzer()
 {
-	timer_config = new ledc_timer_config_t;
-	timer_config -> speed_mode = LEDC_SPEED_MODE_MAX;
-	timer_config -> freq_hz = 40000;
-	timer_config -> timer_num = LEDC_TIMER_0;
-	timer_config -> clk_cfg = LEDC_AUTO_CLK;
-	timer_config -> duty_resolution = LEDC_TIMER_10_BIT; // Разрешение 10 бит
+	/*
+	gpio_reset_pin(GPIO_NUM_12);
+	gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
+	gpio_set_level(GPIO_NUM_12, 0);
+	*/
 
+	  // Таймер
+    ledc_timer_config_t timer_cfg = {
+        .speed_mode = LEDC_MODE,           // LEDC_HIGH_SPEED_MODE
+        .duty_resolution = LEDC_TIMER_10_BIT,
+        .timer_num = LEDC_TIMER,           // LEDC_TIMER_0
+        .freq_hz = 2700,
+        .clk_cfg = LEDC_AUTO_CLK
+    };
+
+    esp_err_t err = ledc_timer_config(&timer_cfg);
+    if (err != ESP_OK) {
+        printf("ledc_timer_config failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    // Канал
+    ledc_channel_config_t ch_cfg = {
+        .gpio_num = BUZZER_PIN,
+        .speed_mode = LEDC_MODE,
+        .channel = LEDC_CHANNEL,
+        .intr_type = LEDC_INTR_DISABLE,
+        .timer_sel = LEDC_TIMER,
+        .duty = DUTY,
+        .hpoint = 0
+    };
+
+    err = ledc_channel_config(&ch_cfg);
+    if (err != ESP_OK) {
+        printf("ledc_channel_config failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    // По желанию: сразу приостановить таймер, чтобы не пищал
+    ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
 }

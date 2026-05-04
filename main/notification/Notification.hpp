@@ -31,10 +31,6 @@ class Notification final
       gpio_num_t led_pins[3] {RED_COLOR_PIN, BLUE_COLOR_PIN, GREEN_COLOR_PIN};
       std::map<notification_source_t, func> functionMap;
 
-      // конфиги ШИМа
-      ledc_timer_config_t*	timer_config;
-      ledc_channel_config_t* chanel_config;
-
       void init();
       void initLed();
       void initBuzzer();
