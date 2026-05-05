@@ -32,20 +32,45 @@ void Notification :: notifProcessor(notif_cmd_t* cmd)
 {
 	if(!cmd) {
 		printf("error cmd in NULL (Notification.eventProcessor)\n");
+		delete cmd;
 		return;
 	}
 
 	if(cmd -> event_type < 0) {
 		printf("error incorrect cmd type (Notification.eventProcessor)\n");
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
+
+		delete cmd;
 		return;
 	}
 
-	if(cmd -> event_type == SHUTDOWN_NOTIF) {
-		// todo create SHUTDOWN
+	if(cmd -> event_type == SHUTDOWN_NOTIF){
+
+		this -> deInitLed();
+		// this -> deinitBuzzrer();
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
+
+		delete cmd;
+		return;
 	}
 
 	if(!functionMap.contains(cmd -> notif_source)) {
-		printf("error has not func with id: %d\n (Notification.eventProcessor)", cmd -> event_type);
+		printf("error has not func with id: %d (Notification.eventProcessor)\n", cmd -> event_type);
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
+
+		delete cmd;
 		return;
 	}
 
@@ -63,12 +88,17 @@ void Notification :: fillNotifMap()
 		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
 		{
 			gpio_set_level(cmd -> led_gpio, level ? 1 : 0);
-			vTaskDelay(5);
+			vTaskDelay(10);
 
 			level = !level;
 		}
 
 		gpio_set_level(cmd -> led_gpio, 0);
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
 
 		delete cmd;
 	};
@@ -80,10 +110,16 @@ void Notification :: fillNotifMap()
 
 		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
 		{
-			vTaskDelay(5);
+			vTaskDelay(10);
 		}
 
 		ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
+
 		delete cmd;
 	};
 
@@ -115,6 +151,11 @@ void Notification :: fillNotifMap()
 
 		// gpio_set_level(GPIO_NUM_12, 1);
 		gpio_set_level(cmd -> led_gpio, 0);
+
+		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
 
 		delete cmd;
 	};
@@ -150,20 +191,14 @@ void Notification :: initLed()
 	gpio_set_level(BLUE_COLOR_PIN, 0);	
 }
 
-void Notification ::  initBuzzer()
+void Notification :: initBuzzer()
 {
-	/*
-	gpio_reset_pin(GPIO_NUM_12);
-	gpio_set_direction(GPIO_NUM_12, GPIO_MODE_OUTPUT);
-	gpio_set_level(GPIO_NUM_12, 0);
-	*/
-
 	  // Таймер
     ledc_timer_config_t timer_cfg = {
         .speed_mode = LEDC_MODE,           // LEDC_HIGH_SPEED_MODE
         .duty_resolution = LEDC_TIMER_10_BIT,
         .timer_num = LEDC_TIMER,           // LEDC_TIMER_0
-        .freq_hz = 2700,
+        .freq_hz = 4000,
         .clk_cfg = LEDC_AUTO_CLK
     };
 
@@ -192,4 +227,41 @@ void Notification ::  initBuzzer()
 
     // По желанию: сразу приостановить таймер, чтобы не пищал
     ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
+}
+
+void Notification :: deInitLed()
+{
+	gpio_num_t gpio_arr[] {RED_COLOR_PIN, GREEN_COLOR_PIN};
+
+	for(int i = 0; i < 3; i++)
+	{
+		gpio_config_t io_conf = {
+			.pin_bit_mask = (1ULL << gpio_arr[i]),
+			.mode = GPIO_MODE_INPUT,          // Режим входа
+			.pull_up_en = GPIO_PULLUP_DISABLE, // Отключить подтяжку вверх
+			.pull_down_en = GPIO_PULLDOWN_DISABLE, // Отключить подтяжку вниз
+			.intr_type = GPIO_INTR_DISABLE    // Отключить прерывания
+    	};
+    	gpio_config(&io_conf);
+	}
+}
+
+void Notification :: deinitBuzzrer()
+{
+	  // 1. Останавливаем ШИМ и устанавливаем пин в 0
+    ledc_stop(LEDC_MODE, LEDC_CHANNEL, 0); 
+    
+    // 2. Приостанавливаем таймер (обязательное условие)
+    ledc_timer_pause(LEDC_MODE, LEDC_TIMER); 
+    
+    // 3. Деинициализируем таймер через флаг deconfigure
+    ledc_timer_config_t timer_del_cfg = {
+        .speed_mode = LEDC_MODE,
+        .timer_num = LEDC_TIMER,
+        .deconfigure = true,
+    };
+    ledc_timer_config(&timer_del_cfg);
+    
+    // 4. Сбрасываем пин в состояние по умолчанию
+    gpio_reset_pin(static_cast<gpio_num_t>(BUZZER_PIN));
 }

@@ -31,7 +31,8 @@ struct notif_cmd_t
     notification_source_t notif_source;
     uint8_t blink_iteration;
 
-	gpio_num_t led_gpio;    
+	gpio_num_t led_gpio;
+    SemaphoreHandle_t sync_semaphore = NULL; // Ждать ли результат
 };
 
 

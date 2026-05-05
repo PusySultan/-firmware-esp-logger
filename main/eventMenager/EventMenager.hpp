@@ -71,6 +71,7 @@ class EventMenager final
 		void createSensor(SensorsID);
 
 		// kill func
+		void killNotif();
 		void killStorage();
 		void killNetwork();
 		void killUpload();
@@ -88,6 +89,7 @@ class EventMenager final
 		// notif func
 		void notif_turn_on_device();
 		void notif_turn_off_pin();
+		void notif_case_open();
 };
 
 #endif /* MAIN_EVENTMENAGER_EVENTMENAGER_HPP_ */

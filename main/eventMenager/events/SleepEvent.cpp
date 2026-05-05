@@ -17,12 +17,14 @@ SleepEvent :: SleepEvent (gpio_num_t PIN, QueueHandle_t* _global_event_queue) : 
     global_event_queue = _global_event_queue;
 	isr_pin = PIN;
 
+    gpio_reset_pin(isr_pin);
+
     gpio_config_t gp_config = {
         .pin_bit_mask = (1ULL << isr_pin),
         .mode = GPIO_MODE_INPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_LOW_LEVEL		    // Прерывание 1 -> 0
+        .intr_type =  GPIO_INTR_NEGEDGE // GPIO_INTR_LOW_LEVEL		    // Прерывание 1 -> 0
     };
 
     gpio_config(&gp_config);

@@ -34,6 +34,9 @@ class Notification final
       void init();
       void initLed();
       void initBuzzer();
+
+      void deInitLed();
+      void deinitBuzzrer();
       
       void fillNotifMap();
       void turn_off_pins_except(gpio_num_t);

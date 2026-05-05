@@ -9,6 +9,7 @@
 #include "EventMenager.hpp"
 #include "MsgServerTypes.hpp"
 #include "NetworkTypes.hpp"
+#include "NotificationTypes.hpp"
 #include "StorageTypes.hpp"
 #include "UploaderTypes.hpp"
 #include "MessageCreaterTypes.hpp"
@@ -103,4 +104,15 @@ void EventMenager :: killStorage()
 	vSemaphoreDelete(kill_storage_process_cmd -> sync_semaphore);
 	
 	delete kill_storage_process_cmd;
+}
+
+void EventMenager :: killNotif()
+{
+	notif_cmd_t* cmd_turn_off = new notif_cmd_t;
+	cmd_turn_off -> event_type = SHUTDOWN_NOTIF;
+	cmd_turn_off -> sync_semaphore = xSemaphoreCreateBinary();
+
+	xQueueSend(*notif_event_queue, &cmd_turn_off, pdMS_TO_TICKS(10000));
+	xSemaphoreTake(cmd_turn_off -> sync_semaphore, pdMS_TO_TICKS(30000));
+	vSemaphoreDelete(cmd_turn_off -> sync_semaphore);
 }

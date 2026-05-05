@@ -82,6 +82,7 @@ void EventMenager :: fillFunctionMap()
 		this -> KILL_PROCESS_FLSG = true;
 
 		this -> notif_turn_off_pin();
+		this -> killNotif();
 
 		// this -> killSensors();
 		// this -> killUpload();
@@ -138,6 +139,8 @@ void EventMenager :: fillFunctionMap()
 		vTaskDelay(pdMS_TO_TICKS(3000));
 		this -> _caseOpeningEvent -> interruptEnable();
 		delete cmd;
+
+		this -> notif_case_open();
 	};
 
 	this -> eventProcessors[CASE_CLOSENG_EVENT] = [this](event_cmd_t* cmd)
