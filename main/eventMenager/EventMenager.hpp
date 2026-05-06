@@ -84,7 +84,6 @@ class EventMenager final
 		void saveDisabeEvent();
 		void saveJobIntervalTime();
 		void saveTotalJobTime();
-
 		uint64_t getTotalJobTime();
 
 		// notif func
