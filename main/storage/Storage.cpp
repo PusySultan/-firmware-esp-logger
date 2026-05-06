@@ -33,15 +33,22 @@ esp_err_t Storage :: eventProcessor(storage_cmd_t* cmd)
 {
 	if(!cmd)
 	{
-		printf("error in Storage.eventProcessor cmd in NULL\n");
+		printf("error cmd in NULL (Storage.eventProcessor)\n");
 		
 		delete cmd;
 		return ESP_ERR_INVALID_ARG;
 	}
 	
-	if(!cmd -> event_type || !functionMap.contains(cmd -> event_type))
+	if(!cmd -> event_type)
 	{
-		printf("error in Storage.eventProcessor has not func with id: %d\n", cmd -> event_type);
+		printf("Bad commant empty cmd event type (Storage.eventProcessor)\n");
+		delete cmd;
+		return ESP_ERR_MEMPROT_BASE;
+	}
+
+	if(!functionMap.contains(cmd -> event_type))
+	{
+		printf("error ihas not func with id: %d (Storage.eventProcessor)\n", cmd -> event_type);
 		
 		delete cmd;
 		return ESP_ERR_MEMPROT_BASE;

@@ -68,14 +68,16 @@ void startBaseInit();
 void overrideQueues();
 void sendStartEvents();
 
-// Функции включения
+// Функции включения при всккрытии во сне
+void connectGND();
 void startSpecialInit();
 void createSpecialTasks();
+void notifCaseOpenInSleepMode();
 void regCaseOpeningInSleepMode();
 
+void byby();
 void clearQueue();
-void killedTasks();
-void byby();                        /// уход ко сну
+void killedTasks();                       // уход ко сну
 wekup_sourse_t getWekupSourse();
 
 

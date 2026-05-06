@@ -39,12 +39,7 @@ void Notification :: notifProcessor(notif_cmd_t* cmd)
 	if(cmd -> event_type < 0) {
 		printf("error incorrect cmd type (Notification.eventProcessor)\n");
 
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 		return;
 	}
 
@@ -53,24 +48,13 @@ void Notification :: notifProcessor(notif_cmd_t* cmd)
 		this -> deInitLed();
 		// this -> deinitBuzzrer();
 
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 		return;
 	}
 
 	if(!functionMap.contains(cmd -> notif_source)) {
 		printf("error has not func with id: %d (Notification.eventProcessor)\n", cmd -> event_type);
-
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 		return;
 	}
 
@@ -95,15 +79,10 @@ void Notification :: fillNotifMap()
 
 		gpio_set_level(cmd -> led_gpio, 0);
 
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 	};
 
-	functionMap[NOISE] = [] (notif_cmd_t* cmd)
+	functionMap[NOISE] = [this] (notif_cmd_t* cmd)
 	{
 		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, DUTY);
 		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -115,12 +94,7 @@ void Notification :: fillNotifMap()
 
 		ledc_timer_pause(LEDC_MODE, LEDC_TIMER);
 
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 	};
 
 	functionMap[LED_NOISE] = [this] (notif_cmd_t* cmd)
@@ -153,12 +127,7 @@ void Notification :: fillNotifMap()
 		// gpio_set_level(GPIO_NUM_12, 1);
 		gpio_set_level(cmd -> led_gpio, 0);
 
-		if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
-			xSemaphoreGive(cmd -> sync_semaphore);
-			return;
-		}
-
-		delete cmd;
+		freeOrDeleteCmd(cmd);
 	};
 }
 
@@ -265,4 +234,15 @@ void Notification :: deinitBuzzrer()
     
     // 4. Сбрасываем пин в состояние по умолчанию
     gpio_reset_pin(static_cast<gpio_num_t>(BUZZER_PIN));
+}
+
+void Notification :: freeOrDeleteCmd(notif_cmd_t* cmd)
+{
+	// Если семафор есть и он не NILL, то освобождаем его
+	if(cmd -> sync_semaphore && cmd -> sync_semaphore != NULL) {
+		xSemaphoreGive(cmd -> sync_semaphore);
+		return;
+	}
+
+	delete cmd;
 }

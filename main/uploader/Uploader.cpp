@@ -210,6 +210,7 @@ void Uploader :: fillFunctionMap()
 		uint8_t data[4];
 		uint8_t dateTime[32];
 		SensorsID currentId = getSensorIdByAddr(cmd -> addr);
+		printf("upload sensor id %d addr: %" PRIu32 "\n", static_cast<uint8_t>(currentId), cmd -> addr);
 		
 		// Загружаем данные из памяти
 		uploadDataByAddr(cmd -> addr, data, dateTime);

@@ -88,7 +88,7 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 	{
 		// ROOT JSON
 	  	cJSON* root = cJSON_Parse(cmd -> inputString);
-	    if (root == NULL) {
+	    if (!root || root == NULL) {
 			printf("ERROR root JSON is NULL (MsgFromServerProcessors.eventProcessor)\n");
 			cJSON_Delete(root);
 	        return;
@@ -97,14 +97,18 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 	    // COLLECTION
 	    collection_t collection = UNKNOW_COLLECTION;
 	    cJSON* collection_item = cJSON_GetObjectItem(root, "collection");
-		if(collection_item == NULL) {
+
+		if(collection_item == NULL || !cJSON_IsString(collection_item) || collection_item -> valuestring == NULL)
+		{
+			printf("ERROR collection field is missing or not a string (MsgFromServerProcessor.eventProcessor)\n");
+			cJSON_Delete(root);
 			return;
 		}
 
 	    collection = string_to_collection(collection_item -> valuestring); 
 	    
 		if(collection == UNKNOW_COLLECTION) {
-			printf("ERROR collection is bad: %s (MsgFromServerProcessors.eventProcessor)\n", collection_item -> valuestring);
+			printf("ERROR collection is bad (MsgFromServerProcessors.eventProcessor)\n");
 			cJSON_Delete(root);
 			return;
 		}
@@ -112,6 +116,14 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 		// REQUEST TYPE
 		request_type_t request_type;
 		cJSON* type_item = cJSON_GetObjectItem(root, "type");
+
+		if(type_item == NULL || !cJSON_IsString(type_item) || type_item -> valuestring == NULL)
+		{
+			printf("ERROR request type is bad (MsgFromServerProcessors.eventProcessor)\n");
+			cJSON_Delete(root);
+			return;
+		}
+
 		request_type = string_to_requestType(type_item -> valuestring);
 		
 		if(request_type == UNKNOW_TYPE) {

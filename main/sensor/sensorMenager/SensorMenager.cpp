@@ -138,7 +138,6 @@ void SensorMenager :: fillFunctionMap()
 		xSemaphoreGive(cmd -> sync_semaphore);
 	};
 	
-
 	this -> eventProcessors[SENSOR_GET_VALUE] = [this] (sensor_cmd_t* cmd)
 	{
 		// Получаем значение
@@ -160,7 +159,7 @@ void SensorMenager :: fillFunctionMap()
 		// Заполняем данные
 		block_data bd0;
 		memcpy(bd0.data, convertBuffer, 4);
-		bd0.length = 4;
+		bd0.length =  sizeof(bd0.data);
 		bd0.addr   = pionter_addr;
 		
 		// Заполняем время

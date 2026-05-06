@@ -40,6 +40,8 @@ class Notification final
       
       void fillNotifMap();
       void turn_off_pins_except(gpio_num_t);
+
+      void freeOrDeleteCmd(notif_cmd_t*);
 };
 
 #endif /* MAIN_NOTIFICATION_NOTIFICATION_HPP_ */
