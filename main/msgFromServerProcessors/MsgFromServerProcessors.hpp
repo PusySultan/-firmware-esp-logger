@@ -41,8 +41,9 @@ class MsgFromServerProcessors final
 		static QueueHandle_t* storage_event_queue;
 		static QueueHandle_t* desiral_event_queue;
 		
-		void fillCollectionFuncMap();
 		void fillEventFuncMap();
+		void fillCollectionFuncMap();
+		void deleteOrFreeCmd(msg_server_cmd*);
 		
 		std::map<collection_t, collection_func> collectionProcessor;
 		std::map<server_event_type_t, event_func> eventProcessor;

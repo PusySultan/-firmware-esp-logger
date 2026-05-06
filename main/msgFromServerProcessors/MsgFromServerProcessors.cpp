@@ -45,8 +45,15 @@ void MsgFromServerProcessors :: internalProcessor(msg_server_cmd* cmd)
 		printf("ERROR cmd is NULL (internalProcessor.eventProcessor)\n");
 	}
 	
+	if(cmd -> event_type < 0) {
+		printf("ERROR incorrect event type (internalProcessor.eventProcessor)\n");
+		deleteOrFreeCmd(cmd);
+		return;
+	}
+
 	if(!eventProcessor.contains(cmd -> event_type)) {
 		printf("ERROR dose not exist processor for this type (internalProcessor.eventProcessor)\n");
+		deleteOrFreeCmd(cmd);
 		return;
 	}
 	
@@ -76,12 +83,7 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 		
 		xQueueReset(*desiral_event_queue);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		deleteOrFreeCmd(cmd);
 	};
 	
 	this -> eventProcessor[PROCESS] = [this] (msg_server_cmd* cmd)
@@ -152,11 +154,16 @@ void MsgFromServerProcessors :: fillEventFuncMap()
 	    
 	    cJSON_Delete(root);
 	    
-	    if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+	    deleteOrFreeCmd(cmd);
 	};
+}
+
+void MsgFromServerProcessors :: deleteOrFreeCmd(msg_server_cmd* cmd)
+{
+	if(cmd -> sync_semaphore == NULL) {
+		delete cmd;
+		return;
+	}
+		
+	xSemaphoreGive(cmd -> sync_semaphore);
 }
