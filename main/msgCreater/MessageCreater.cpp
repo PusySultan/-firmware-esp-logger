@@ -153,13 +153,16 @@ void MessageCreater :: fillFunctionMap()
 	
 	functionMap[DEVICE_EVENT] 	= [this] (create_cmd_t *cmd) 
 	{
+		// 0 блок - тип события u32
+		// 1 блок - время проишествия
+
 		cJSON* topJSON = cJSON_CreateObject();
 		cJSON* message = cJSON_CreateObject();
 		
 		char *event = {};
 		char dateTimeStr[32];
 		cmd -> dateTime.toString(dateTimeStr);
-		event =  event_type_to_string((event_type_t)readU32LE(cmd -> createrBlock[0].data));
+		event =  event_type_to_string((event_type_t) readU32LE(cmd -> createrBlock[0].data));
 		
 		cmd -> dateTime.toString(dateTimeStr);
 		cJSON_AddStringToObject(message, "date", dateTimeStr);

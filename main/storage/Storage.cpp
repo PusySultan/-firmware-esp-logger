@@ -19,8 +19,6 @@ QueueHandle_t* Storage :: msg_createre_event_queue = nullptr;
 Storage::Storage ()
 {
 	this -> memory = new W25Q128();
-	
-	//fillDefaultSetting();
 	fillFunctionMap();
 }
 

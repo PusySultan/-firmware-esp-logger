@@ -416,7 +416,7 @@ void Uploader :: resetFlagById(SensorsID id)
 
 	xQueueSend(*storage_event_queue, &delete_event_cmd, portMAX_DELAY);
 	xSemaphoreTake(delete_event_cmd -> sync_semaphore, portMAX_DELAY);
-	vSemaphoreDelete(&delete_event_cmd -> sync_semaphore);
+	vSemaphoreDelete(delete_event_cmd -> sync_semaphore);	// 419
 
 	delete delete_event_cmd;
 }
