@@ -50,31 +50,21 @@ void MessageCreater :: eventProcessor(create_cmd_t* cmd)
 	
 	if(!cmd) {
 		printf("Error: cmd is NULL (MessageCreater.EventProcessor)\n");
-		return; // 49 строка
+		return;
 	}
 	
 	if(cmd -> cmd_type == SHUTDOWN_MSG_CREATER) {
 		printf("KILL process creater (MessageCreater.EventProcessor)\n");
 		this -> killProcess();
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);	
+		freeOrDeleteCmd(cmd);
 		return;	
 	}
 
 	if(cmd -> cmd_type == INIT) {
 		fillReqInfo();
 
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);	
+		freeOrDeleteCmd(cmd);
 		return;	
 	}
 	
@@ -112,12 +102,7 @@ void MessageCreater :: fillFunctionMap()
 		cJSON_free(jsonStr);
 		cJSON_Delete(topJSON);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		freeOrDeleteCmd(cmd);
 	};
 	
 	// only push
@@ -143,12 +128,7 @@ void MessageCreater :: fillFunctionMap()
 		cJSON_free(jsonStr);
 		cJSON_Delete(topJSON);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		freeOrDeleteCmd(cmd);
 	};
 	
 	functionMap[DEVICE_EVENT] 	= [this] (create_cmd_t *cmd) 
@@ -179,12 +159,7 @@ void MessageCreater :: fillFunctionMap()
 		cJSON_free(jsonStr);
 		cJSON_Delete(topJSON);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		freeOrDeleteCmd(cmd);
 	};
 	
 	functionMap[SETTING] 		= [this] (create_cmd_t *cmd) 
@@ -232,12 +207,7 @@ void MessageCreater :: fillFunctionMap()
 		cJSON_free(jsonStr);
 		cJSON_Delete(topJSON);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		freeOrDeleteCmd(cmd);
 	};
 }
 	
@@ -338,6 +308,17 @@ void MessageCreater :: sendToServer(char* data)
     cmd -> data[len] = '\0';  // Null-terminate
 	
 	xQueueSend(*network_event_queue, &cmd, 0);
+}
+
+void MessageCreater :: freeOrDeleteCmd(create_cmd_t * cmd)
+{
+	if(cmd -> sync_semaphore == NULL) {
+		delete cmd;
+		return;
+	}
+		
+	xSemaphoreGive(cmd -> sync_semaphore);	
+	return;	
 }
 
 void MessageCreater :: killProcess()

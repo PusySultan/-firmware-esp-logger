@@ -41,6 +41,7 @@ class MessageCreater final
 	  void killProcess();
 	  void fillFunctionMap();
 	  void sendToServer(char*);
+	  void freeOrDeleteCmd(create_cmd_t*);
 
 	  uint64_t getTotalJobInterval();
 	  uint64_t getLastJobInterval();
