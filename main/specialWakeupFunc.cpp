@@ -6,6 +6,8 @@
  */
 
 
+#include "EventTypes.hpp"
+#include "convertFunc.hpp"
 #include "main.hpp"
 #include "DateTimeSensor.hpp"
 #include "memory_w25q_const.hpp"
@@ -18,10 +20,17 @@ void regCaseOpeningInSleepMode()
 	storage_cmd_t* storage_cmd = new storage_cmd_t;
 		
 	storage_cmd -> event_type = WRITE_DATA;
-	storage_cmd -> data_size  = 1;
+	storage_cmd -> data_size  = 2;
 	storage_cmd -> sectorAddr = ADDR_EVENT_CASE_OPEN;
     storage_cmd -> sync_semaphore = xSemaphoreCreateBinary();
-	memcpy(storage_cmd -> data[0].data, &dateTime, sizeof(dateTime));
+	
+	storage_cmd -> data[0].addr = ADDR_EVENT_CASE_OPEN;
+	storage_cmd -> data[0].length = sizeof(CASE_OPENING_EVENT);
+	writeU32LE(storage_cmd -> data[0].data, CASE_OPENING_EVENT);
+
+	storage_cmd -> data[1].addr = ADDR_EVENT_CASE_OPEN + 4;
+	storage_cmd -> data[1].length = sizeof(dateTime);
+	memcpy(storage_cmd -> data[1].data, &dateTime, sizeof(dateTime));
 
 	xQueueSend(storage_event_queue, &storage_cmd,  pdMS_TO_TICKS(10000));
 }
