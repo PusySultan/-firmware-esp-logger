@@ -38,6 +38,7 @@ void EventMenager :: eventProcessor(event_cmd_t* cmd)
 	if(cmd -> event_type < 0 || !this -> eventProcessors.contains(cmd -> event_type))
 	{
 		printf("ERROR cmd event type is BAD, (EventMenager.eventProcessor)\n");
+		delete cmd;
 		return;
 	}
 	
