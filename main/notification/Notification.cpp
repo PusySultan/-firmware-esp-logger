@@ -130,6 +130,7 @@ void Notification :: fillNotifMap()
 		bool level = 1;
 		ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, DUTY);
 		ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+		ledc_timer_resume(LEDC_MODE, LEDC_TIMER);
 
 		for(uint8_t i = 0; i <= cmd -> blink_iteration; i++)
 		{
