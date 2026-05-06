@@ -37,7 +37,7 @@ esp_err_t Storage :: eventProcessor(storage_cmd_t* cmd)
 		return ESP_ERR_INVALID_ARG;
 	}
 	
-	if(!cmd -> event_type)
+	if(cmd -> event_type < 0)
 	{
 		printf("Bad commant empty cmd event type (Storage.eventProcessor)\n");
 		delete cmd;
