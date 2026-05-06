@@ -115,7 +115,7 @@ void Uploader :: fillFunctionMap()
 		do
 		{	
 			printf("new iteartion\n");
-			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
+			uploadDataByAddr(uploadAddr[currentId], data, dataSizeMap[currentId], dateTime);
 
 			if(!arrayContainsTrush(data, 4))
 			{
@@ -124,9 +124,9 @@ void Uploader :: fillFunctionMap()
 					break;
 				}
 				
-				uploadStateById[currentId] = false;										
-				sendToServer(currentId, data, dateTime);
-				this -> getNextAddr(currentId);			
+				this -> uploadStateById[currentId] = false;										
+				this -> sendToServer(currentId, data, dateTime);
+				this -> getNextAddr(currentId);
 			
 				vTaskDelay(pdMS_TO_TICKS(1000));
 			} else {
@@ -145,6 +145,7 @@ void Uploader :: fillFunctionMap()
 				break;
 			}
 
+			vTaskDelay(pdMS_TO_TICKS(2000));
 		}
 		while(!STOP_UPOLAD);
 		
@@ -206,7 +207,7 @@ void Uploader :: fillFunctionMap()
 		
 		if(STOP_UPOLAD) return; 	 // Если вызвана остановка загрузки
 				
-		printf("\nUPLOAD BY ADDR\n");
+		printf("UPLOAD BY ADDR\n");
 		
 		uint8_t data[4];
 		uint8_t dateTime[32];
@@ -214,7 +215,7 @@ void Uploader :: fillFunctionMap()
 		printf("upload sensor id %d addr: %" PRIu32 "\n", static_cast<uint8_t>(currentId), cmd -> addr);
 		
 		// Загружаем данные из памяти
-		uploadDataByAddr(cmd -> addr, data, dateTime);
+		uploadDataByAddr(cmd -> addr, data, 4, dateTime);
 		sendToServer(currentId, data, dateTime);
 				
 		uploadAddr[currentId] += NEXT_SECTOR;
@@ -230,9 +231,22 @@ void Uploader :: fillFunctionMap()
 
 bool Uploader :: checkAllStates()
 {
-	return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
+	bool state = uploadStateById[TEMP_SENSOR_1_ID];
+	std::map<SensorsID, bool>::iterator it = uploadStateById.begin();
+
+	while(it != uploadStateById.end())
+	{
+		state = state && it -> second;
+		++it;
+	}
+
+	printf("check all states and return: %i", state);
+	
+	/*
+		return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
 		   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID] &&
 		   uploadStateById[CASE_OPEN_EVENT_ID] && uploadStateById[CASE_CLOSE_EVENT_ID];
+	*/
 }
 
 void Uploader :: reesteAllStates()
@@ -308,7 +322,7 @@ void Uploader :: getNextAddr(SensorsID id)
 	}
 }
 
-void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)
+void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t size, uint8_t* dt)
 {
 	if(!storage_event_queue) {
 		printf("Dtorage queue is NULL (Uploader.uploadDataByAddr)\n");
@@ -322,11 +336,11 @@ void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)
 	get_data_from_storage_cmd -> data_size = 2;
 	get_data_from_storage_cmd -> sectorAddr = addr;
 	
-	get_data_from_storage_cmd -> data[0].length = 4;
+	get_data_from_storage_cmd -> data[0].length = size;
 	get_data_from_storage_cmd -> data[0].addr = addr;
 	
 	get_data_from_storage_cmd -> data[1].length = sizeof(DateTime);
-	get_data_from_storage_cmd -> data[1].addr = addr + 4;
+	get_data_from_storage_cmd -> data[1].addr = addr + size;
 	
 	xQueueSend(*storage_event_queue, &get_data_from_storage_cmd, portMAX_DELAY);
 	xSemaphoreTake(get_data_from_storage_cmd -> sync_semaphore, portMAX_DELAY);
@@ -393,9 +407,13 @@ void Uploader :: resetFlagById(SensorsID id)
 	
 	delete_event_cmd -> event_type = ERASE_DATA;
 	delete_event_cmd -> sectorAddr = uploadAddr[id];
+	delete_event_cmd -> sync_semaphore = xSemaphoreCreateBinary(); 
 
-	// команда удаляется в обработчике
-	xQueueSend(*storage_event_queue, &delete_event_cmd, 0);
+	xQueueSend(*storage_event_queue, &delete_event_cmd, portMAX_DELAY);
+	xSemaphoreTake(delete_event_cmd -> sync_semaphore, portMAX_DELAY);
+	vSemaphoreDelete(&delete_event_cmd -> sync_semaphore);
+
+	delete delete_event_cmd;
 }
 
 collection_t Uploader :: getCmdCollection(SensorsID id)
