@@ -64,7 +64,7 @@ class EventMenager final
 		void connectGND();
 		void fillFunctionMap();
 	
-		// init func
+		// init/create func
 		void initUpload();
 		void initNetwork();
 		void initMsgCreater();
@@ -79,6 +79,7 @@ class EventMenager final
 		void killCreater();
 		void killMsgProcessor();
 	
+		// save/get time interval
 		void saveEnableEvent();
 		void saveDisabeEvent();
 		void saveJobIntervalTime();
@@ -87,9 +88,9 @@ class EventMenager final
 		uint64_t getTotalJobTime();
 
 		// notif func
-		void notif_turn_on_device();
-		void notif_turn_off_pin();
 		void notif_case_open();
+		void notif_turn_off_pin();
+		void notif_turn_on_device();
 };
 
 #endif /* MAIN_EVENTMENAGER_EVENTMENAGER_HPP_ */
