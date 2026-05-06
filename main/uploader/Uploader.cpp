@@ -114,12 +114,13 @@ void Uploader :: fillFunctionMap()
 		
 		do
 		{	
+			printf("new iteartion\n");
 			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
 
 			if(!arrayContainsTrush(data, 4))
 			{
 				if(STOP_UPOLAD) {
-					printf("\n\nBREAK FROM UPLOADER DATA out 2\n\n");
+					printf("BREAK FROM UPLOADER DATA\n");
 					break;
 				}
 				
@@ -140,7 +141,7 @@ void Uploader :: fillFunctionMap()
 			}
 			if(stableCycles >= 3) {
 				// Делаем несколько проходов
-				printf("\n\nBREAK FROM UPLOADER DATA out 2\n\n");
+				printf("BREAK FROM UPLOADER DATA\n");
 				break;
 			}
 
@@ -148,7 +149,7 @@ void Uploader :: fillFunctionMap()
 		while(!STOP_UPOLAD);
 		
 		OLD_DATA_UPLOAD = true;
-		printf("\n\n\nOLD DATA UPLOADED (Uploader.functionMap[START_GLOBAL_UPLOAD])\n\n\n");
+		printf("OLD DATA UPLOADED (Uploader.functionMap[START_GLOBAL_UPLOAD])\n");
 		
 		if(cmd -> sync_semaphore == NULL) {
 			delete cmd;
@@ -356,7 +357,7 @@ void Uploader :: sendToServer(SensorsID id, uint8_t* data, uint8_t* dt)
 	
 	xQueueSend(*creater_event_queue, &create_cmd, 0);	
 		
-	// resetFlagById(id);
+	resetFlagById(id);
 }
 
 SensorsID Uploader :: getNextId(SensorsID id)
@@ -372,13 +373,29 @@ void Uploader :: resetFlagById(SensorsID id)
 {
 	if(!storage_event_queue) return;
 	
-	storage_cmd_t* set_flag_cmd = new storage_cmd_t;
+	// Для данных снимаем флаг отправки 
+	if(id < 7)
+	{
+		/*
+		storage_cmd_t* set_flag_cmd = new storage_cmd_t;
 	
-	set_flag_cmd -> event_type = SETT_FLAG_SEND;
-	set_flag_cmd -> data[0].addr = uploadAddr[id];
+		set_flag_cmd -> event_type = SETT_FLAG_SEND;
+		set_flag_cmd -> data[0].addr = uploadAddr[id];
+
+		// команда удаляется в обработчике
+		xQueueSend(*storage_event_queue, &set_flag_cmd, 0);
+		return;
+		*/
+	}
+
+	// Для событий стираем запись
+	storage_cmd_t* delete_event_cmd = new storage_cmd_t;
+	
+	delete_event_cmd -> event_type = ERASE_DATA;
+	delete_event_cmd -> sectorAddr = uploadAddr[id];
 
 	// команда удаляется в обработчике
-	xQueueSend(*storage_event_queue, &set_flag_cmd, 0);
+	xQueueSend(*storage_event_queue, &delete_event_cmd, 0);
 }
 
 collection_t Uploader :: getCmdCollection(SensorsID id)

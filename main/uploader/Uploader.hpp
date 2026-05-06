@@ -55,7 +55,6 @@ class Uploader final
 			{DUST_SENSOR_2_ID,		UINT32_MAX},
 			{CASE_OPEN_EVENT_ID,	UINT32_MAX},
 			{CASE_CLOSE_EVENT_ID, 	UINT32_MAX}
-
 		};
 		
 		// Мапа состояний

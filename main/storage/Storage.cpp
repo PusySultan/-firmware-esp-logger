@@ -188,7 +188,6 @@ void Storage :: fillFunctionMap()
 		xQueueSend(*msg_createre_event_queue, &create_cmd, 0);
 	};
 	
-	
 	this -> functionMap[SETT_FLAG_SEND] = [this] (storage_cmd_t* cmd)
 	{
 		uint8_t flag = 1;
@@ -200,5 +199,17 @@ void Storage :: fillFunctionMap()
 		);
 		
 		delete cmd;	
+	};
+
+	this -> functionMap[ERASE_DATA] = [this] (storage_cmd_t* cmd)
+	{
+		this -> memory -> eraseSector(cmd -> sectorAddr);
+
+		if(cmd -> sync_semaphore){
+			xSemaphoreGive(cmd -> sync_semaphore);
+			return;
+		}
+
+		delete cmd;
 	};
 }

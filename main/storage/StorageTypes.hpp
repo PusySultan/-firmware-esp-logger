@@ -18,9 +18,8 @@ enum storage_event_type_t
 	READ_DATA      = 1,
 	WRITE_DATA     = 2,		// Записыываются по разными секторам
 	WRITE_BY_TRANS = 3, 	// Записываются внурь 1 сектора
-	ERASE_DATA	   = 4,
+	ERASE_DATA	   = 4,		// Стираем сектор
 	SETT_FLAG_SEND = 5,
-	
 	UPDATE_FROM_SERVER = 9,
 };
 
