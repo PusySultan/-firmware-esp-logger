@@ -57,18 +57,6 @@ class Uploader final
 			{CASE_OPEN_EVENT_ID,	UINT32_MAX},
 			{CASE_CLOSE_EVENT_ID, 	UINT32_MAX}
 		};
-
-		std::map<SensorsID, uint8_t> dataSizeMap
-		{
-			{TEMP_SENSOR_1_ID,		4},
-			{TEMP_SENSOR_2_ID,		4},
-			{TEMP_SENSOR_3_ID,		4},
-			{TEMP_SENSOR_C_ID,		4},
-			{DUST_SENSOR_1_ID,		4},
-			{DUST_SENSOR_2_ID,		4},
-			{CASE_OPEN_EVENT_ID,	sizeof(DateTime)},
-			{CASE_CLOSE_EVENT_ID, 	sizeof(DateTime)}
-		};
 		
 		// Мапа состояний
 		std::map<SensorsID, bool> uploadStateById
@@ -90,7 +78,7 @@ class Uploader final
 		void uploadAddrById(SensorsID id);
 		void readFlag(uint32_t adddr, uint8_t* flag);
 		void sendToServer(SensorsID id, uint8_t* data, uint8_t* dt);
-		void uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t size, uint8_t* dt);
+		void uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt);
 
 		collection_t getCmdCollection(SensorsID id);
 		SensorsID getNextId(SensorsID id);

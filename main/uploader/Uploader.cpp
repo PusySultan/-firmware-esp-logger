@@ -115,10 +115,11 @@ void Uploader :: fillFunctionMap()
 		do
 		{	
 			printf("new iteartion\n");
-			uploadDataByAddr(uploadAddr[currentId], data, dataSizeMap[currentId], dateTime);
+			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
 
 			if(!arrayContainsTrush(data, 4))
 			{
+				printf("data is correct by id %d\n", currentId);
 				if(STOP_UPOLAD) {
 					printf("BREAK FROM UPLOADER DATA\n");
 					break;
@@ -130,6 +131,7 @@ void Uploader :: fillFunctionMap()
 			
 				vTaskDelay(pdMS_TO_TICKS(1000));
 			} else {
+				printf("data is trash by id %d\n", currentId);
 				// помечаем данные по данному ID загруженными
 				uploadStateById[currentId] = true;
 				currentId = getNextId(currentId);				
@@ -139,13 +141,14 @@ void Uploader :: fillFunctionMap()
 				reesteAllStates();
 				stableCycles++;
 			}
+
 			if(stableCycles >= 3) {
 				// Делаем несколько проходов
 				printf("BREAK FROM UPLOADER DATA\n");
 				break;
 			}
 
-			vTaskDelay(pdMS_TO_TICKS(2000));
+			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
 		while(!STOP_UPOLAD);
 		
@@ -215,7 +218,7 @@ void Uploader :: fillFunctionMap()
 		printf("upload sensor id %d addr: %" PRIu32 "\n", static_cast<uint8_t>(currentId), cmd -> addr);
 		
 		// Загружаем данные из памяти
-		uploadDataByAddr(cmd -> addr, data, 4, dateTime);
+		uploadDataByAddr(cmd -> addr, data, dateTime);
 		sendToServer(currentId, data, dateTime);
 				
 		uploadAddr[currentId] += NEXT_SECTOR;
@@ -240,8 +243,8 @@ bool Uploader :: checkAllStates()
 		++it;
 	}
 
-	printf("check all states and return: %i", state);
-	
+	printf("check all states and return: %i\n", state);
+	return state;
 	/*
 		return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
 		   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID] &&
@@ -316,13 +319,13 @@ void Uploader :: readFlag(uint32_t addr, uint8_t* flag)
 
 void Uploader :: getNextAddr(SensorsID id)
 {
-	if(id < 7)
+	if((uint8_t)id < 7)
 	{
 		uploadAddr[id] += NEXT_SECTOR;
 	}
 }
 
-void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t size, uint8_t* dt)
+void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)
 {
 	if(!storage_event_queue) {
 		printf("Dtorage queue is NULL (Uploader.uploadDataByAddr)\n");
@@ -336,11 +339,11 @@ void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t size, ui
 	get_data_from_storage_cmd -> data_size = 2;
 	get_data_from_storage_cmd -> sectorAddr = addr;
 	
-	get_data_from_storage_cmd -> data[0].length = size;
+	get_data_from_storage_cmd -> data[0].length = 4;		// данные (значение, тип события и др)
 	get_data_from_storage_cmd -> data[0].addr = addr;
 	
 	get_data_from_storage_cmd -> data[1].length = sizeof(DateTime);
-	get_data_from_storage_cmd -> data[1].addr = addr + size;
+	get_data_from_storage_cmd -> data[1].addr = addr + 4;
 	
 	xQueueSend(*storage_event_queue, &get_data_from_storage_cmd, portMAX_DELAY);
 	xSemaphoreTake(get_data_from_storage_cmd -> sync_semaphore, portMAX_DELAY);
@@ -365,7 +368,7 @@ void Uploader :: sendToServer(SensorsID id, uint8_t* data, uint8_t* dt)
 	create_cmd -> createrBlock[0].byte_count = 4;
 	
 	writeU32LE(create_cmd -> createrBlock[1].data, id);
-	create_cmd -> createrBlock[1].byte_count = 4;
+	create_cmd -> createrBlock[1].byte_count = sizeof(id);
 	
 	create_cmd -> sync_semaphore = NULL;
 	
@@ -376,18 +379,20 @@ void Uploader :: sendToServer(SensorsID id, uint8_t* data, uint8_t* dt)
 
 SensorsID Uploader :: getNextId(SensorsID id)
 {
-	// меняем ID датчика
-	SensorsID nextId = static_cast<SensorsID>((int)id + 1);
-	if((int)id > 6) nextId = TEMP_SENSOR_1_ID;	
-	
-	return nextId;
+	uint8_t next = (uint8_t)id + 1;
+
+	if(next > CASE_CLOSE_EVENT_ID) {
+		next = TEMP_SENSOR_1_ID;
+	}
+
+	return static_cast<SensorsID>(next);
 }
 
 void Uploader :: resetFlagById(SensorsID id)
 {
 	if(!storage_event_queue) return;
 	
-	// Для данных снимаем флаг отправки 
+	// Для данных снимаем флаг отправки (пока не делаем)
 	if(id < 7)
 	{
 		/*
