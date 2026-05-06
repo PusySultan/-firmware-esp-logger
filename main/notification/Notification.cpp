@@ -231,7 +231,7 @@ void Notification :: initBuzzer()
 
 void Notification :: deInitLed()
 {
-	gpio_num_t gpio_arr[] {RED_COLOR_PIN, GREEN_COLOR_PIN};
+	gpio_num_t gpio_arr[] {RED_COLOR_PIN, GREEN_COLOR_PIN, BLUE_COLOR_PIN};
 
 	for(int i = 0; i < 3; i++)
 	{

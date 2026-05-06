@@ -14,10 +14,10 @@ extern "C" void app_main(void)
 {
 	wekup_sourse_t wsourse = getWekupSourse(); 
 	
-	if(wsourse == CASE_OPEN_SOURSE)
+	if(wsourse == CASE_OPEN_SOURCE)
 	{
 		startSpecialInit();
-		goto end;
+		return;
 	}
 
 	
@@ -28,8 +28,6 @@ extern "C" void app_main(void)
 	{
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 	}
-
-	end:;
 }
 
 void startBaseInit()
@@ -76,7 +74,14 @@ void clearQueue()
 
 void byby()
 {
-	const uint64_t WAKEUP_PIN_BITMASK = (1ULL << EVENT_CASE_OPEN_PIN) | (1ULL <<  EVENT_VOLTAGE_OFF_PIN);
+	// вскрытие корпуса (читаем уровень и берем для пробуждентя противоположный)
+	gpio_reset_pin(EVENT_CASE_OPEN_PIN);
+	gpio_set_direction(EVENT_CASE_OPEN_PIN, GPIO_MODE_INPUT);
+	int level = gpio_get_level(EVENT_CASE_OPEN_PIN);
+	esp_sleep_enable_ext0_wakeup(EVENT_CASE_OPEN_PIN, !level);
+
+	// Подача питания
+	const uint64_t WAKEUP_PIN_BITMASK = 1ULL <<  EVENT_VOLTAGE_OFF_PIN;
 	esp_sleep_enable_ext1_wakeup(WAKEUP_PIN_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH);
 
 	esp_deep_sleep_start();
@@ -84,43 +89,65 @@ void byby()
 
 void startSpecialInit()
 {
+	esp_rom_gpio_pad_select_gpio(static_cast<gpio_num_t>(ON_GND));
+	gpio_set_direction(static_cast<gpio_num_t>(ON_GND), GPIO_MODE_OUTPUT);
+	gpio_set_level(static_cast<gpio_num_t>(ON_GND), 1);
+
 	storage = new Storage();
+	myNotif = new Notification();
+
+	notif_event_queue = xQueueCreate(1, sizeof(notif_cmd_t*));
 	storage_event_queue = xQueueCreate(1,  sizeof(storage_cmd_t*));
+
+	myNotif -> overrideInternalQueue(&notif_event_queue);
 	storage -> overrideInternalQueue(&storage_event_queue);
 
+	createSpecialTasks();
+
 	DateTimeSensor :: getInstance().ds1302_init(CLOCK_ENA_PIN, CLOCK_CLK_PIN, CLOCK_DAT_PIN); // 26, 14, 27
+	
+	notif_cmd_t* cmd_turn_on = new notif_cmd_t;
+
+    cmd_turn_on -> event_type = NOTIFICATE;
+    cmd_turn_on -> notif_source = LED_NOISE;
+    cmd_turn_on -> led_gpio = RED_COLOR_PIN;
+    cmd_turn_on -> blink_iteration = 20;
+    cmd_turn_on -> sync_semaphore = xSemaphoreCreateBinary();
+
+ 	xQueueSend(notif_event_queue, &cmd_turn_on, pdMS_TO_TICKS(10000));
+	xSemaphoreTake(cmd_turn_on -> sync_semaphore, pdMS_TO_TICKS(10000));
+	vSemaphoreDelete(cmd_turn_on -> sync_semaphore);
+
+	delete cmd_turn_on;
+
+	byby();
 }
 
 wekup_sourse_t getWekupSourse()
 {
 	wakeup = esp_sleep_get_wakeup_cause();
 
+	if (wakeup == ESP_SLEEP_WAKEUP_EXT0)
+	{
+		printf("CASE OPEN (EXT0)\n");
+		return CASE_OPEN_SOURCE;
+	}
+	
 	if (wakeup == ESP_SLEEP_WAKEUP_EXT1)
 	{
-		return DEFAULT_SOURCE;
-	}
-	
-	//Получаем битовую маску конкретных пинов, инициировавших пробуждение
-	uint64_t wakeup_pin_mask =  esp_sleep_get_ext1_wakeup_status();
+		uint64_t mask = esp_sleep_get_ext1_wakeup_status();
 
-	// Вскрыли корпус
-	if (wakeup_pin_mask & (1ULL << EVENT_CASE_OPEN_PIN))
-	{
-		printf("GPIO CASE OPEN caused the wakeup!\n");
-		return CASE_OPEN_SOURSE;
-	}
-	
-	// Дали питание
-	if (wakeup_pin_mask & (1ULL << EVENT_VOLTAGE_OFF_PIN))
-	{
-		printf("GPIO voltage on caused the wakeup!\n");
-		return VOLTAGE_ON_SOURSE;
+		if (mask & (1ULL << EVENT_VOLTAGE_OFF_PIN))
+		{
+			printf("VOLTAGE ON (EXT1)\n");
+			return VOLTAGE_ON_SOURCE;
+		}
 	}
 
 	return DEFAULT_SOURCE;
 }
 
-void regCaseOpening()
+void regCaseOpeningInSleepMode()
 {
 	DateTime dateTime;
 	DateTimeSensor :: getInstance().ds1302_getDateTime(&dateTime);

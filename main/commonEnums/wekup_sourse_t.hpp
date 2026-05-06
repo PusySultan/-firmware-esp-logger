@@ -10,8 +10,8 @@
 
 enum wekup_sourse_t
 {
-    CASE_OPEN_SOURSE,
-    VOLTAGE_ON_SOURSE,
+    CASE_OPEN_SOURCE,
+    VOLTAGE_ON_SOURCE,
     DEFAULT_SOURCE
 };
 

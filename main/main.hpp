@@ -67,9 +67,10 @@ void startBaseInit();
 void overrideQueues();
 void sendStartEvents();
 
-	// Функции включения
-void regCaseOpening();
+// Функции включения
 void startSpecialInit();
+void createSpecialTasks();
+void regCaseOpeningInSleepMode();
 
 void clearQueue();
 void killedTasks();

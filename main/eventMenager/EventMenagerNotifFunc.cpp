@@ -28,7 +28,7 @@ void EventMenager :: notif_turn_off_pin()
 
     cmd_turn_on -> event_type = NOTIFICATE;
     cmd_turn_on -> notif_source = LED_NOISE;
-    cmd_turn_on -> led_gpio = RED_COLOR_PIN;
+    cmd_turn_on -> led_gpio = GREEN_COLOR_PIN;
     cmd_turn_on -> blink_iteration = 20;
     cmd_turn_on -> sync_semaphore = NULL;
 

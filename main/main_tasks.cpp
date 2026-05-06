@@ -17,7 +17,7 @@ void createTasks()
 			    8,
 			    &notifTaskHundle);
 		
-		xTaskCreate(network_task,
+	xTaskCreate(network_task,
 			    "Network task",
 			    8192,
 			    NULL,
@@ -65,6 +65,24 @@ void createTasks()
 			    NULL,
 			    8,
 			    &eventTaskHundle);
+}
+
+void createSpecialTasks()
+{
+	xTaskCreate(notif_task,
+			    "Notif task",
+			    1000,
+			    NULL,
+			    8,
+			    &notifTaskHundle);
+
+	xTaskCreate(storage_task,
+			    "Storage task",
+			    4096,
+			    NULL,
+			    8,
+			    &storageTaskHundle);
+
 }
 
 void network_task(void *pvParameters)
