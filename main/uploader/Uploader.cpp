@@ -245,11 +245,6 @@ bool Uploader :: checkAllStates()
 
 	printf("check all states and return: %i\n", state);
 	return state;
-	/*
-		return uploadStateById[TEMP_SENSOR_1_ID] && uploadStateById[TEMP_SENSOR_2_ID] && uploadStateById[TEMP_SENSOR_3_ID] &&
-		   uploadStateById[TEMP_SENSOR_C_ID] && uploadStateById[DUST_SENSOR_1_ID] && uploadStateById[DUST_SENSOR_2_ID] &&
-		   uploadStateById[CASE_OPEN_EVENT_ID] && uploadStateById[CASE_CLOSE_EVENT_ID];
-	*/
 }
 
 void Uploader :: reesteAllStates()
