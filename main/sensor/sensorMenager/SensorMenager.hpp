@@ -58,6 +58,7 @@ class SensorMenager final
 		void saveAllPointer();
 		void deleteAllTimers();
 		void createSensor(SensorsID id);
+		void deleteOrFreeCmd(sensor_cmd_t* cmd);
 		uint32_t getSensorIntervalById(SensorsID);
 		static void timers_Callback(TimerHandle_t xTimer);
 };

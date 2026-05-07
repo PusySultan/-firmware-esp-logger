@@ -98,12 +98,7 @@ void SensorMenager :: fillFunctionMap()
 		this -> sensorsMap.clear();
 		
 		// Не удалеям команду, она с подтверждением
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		deleteOrFreeCmd(cmd);
 	};
 	
 	this -> eventProcessors[SENSOR_CREATE] = [this] (sensor_cmd_t* cmd)
@@ -130,22 +125,15 @@ void SensorMenager :: fillFunctionMap()
 
 	    xTimerStart(this -> timersMap[cmd -> sensor_id], 0);
 	    
-	    if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+	    deleteOrFreeCmd(cmd);
 	};
 	
 	this -> eventProcessors[SENSOR_GET_VALUE] = [this] (sensor_cmd_t* cmd)
 	{
 		// Получаем значение
-		uint8_t convertBuffer[4] = {};
 		uint32_t value = this -> sensorsMap[cmd -> sensor_id] -> getData();
-		writeU32LE(convertBuffer, value);
 		
-		// Адрес куда записать
+		// Получаем адрес куда записать
 		uint32_t pionter_addr =  this -> sensorsMap[cmd -> sensor_id] -> getPointer();
 		
 		// Получаем дату и время
@@ -156,44 +144,32 @@ void SensorMenager :: fillFunctionMap()
 		printf("get val %" PRIu32" by sensor %i, by time: %s, save by addres: %" PRIu32 "\n", 
 					value, static_cast<int>(cmd -> sensor_id), buffer, pionter_addr);
 
-		// Заполняем данные
-		block_data bd0;
-		memcpy(bd0.data, convertBuffer, 4);
-		bd0.length =  sizeof(bd0.data);
-		bd0.addr   = pionter_addr;
-		
-		// Заполняем время
-		block_data bd1;
-		memcpy(bd1.data, &this -> dt, sizeof(dt));
-		bd1.length =  sizeof(dt);
-		bd1.addr   = pionter_addr + bd0.length;
-		
-		// Заполняем флаг
-		block_data bd2;
-		bd2.data[0] = 0;
-		bd2.length  = 1;
-		bd2.addr    = pionter_addr + FLAG_DISTANCE;
-		
 		// Создаем и заполняем комманду
 		storage_cmd_t* storage_cmd = new storage_cmd_t;
 		
-		storage_cmd -> event_type = WRITE_BY_TRANS;
-		storage_cmd -> sync_semaphore       = NULL;
 		storage_cmd -> data_size  = 3;
+		storage_cmd -> sync_semaphore = NULL;
 		storage_cmd -> sectorAddr = pionter_addr;
+		storage_cmd -> event_type = WRITE_BY_TRANS;
 		
-		storage_cmd -> data[0]    = bd0;	// data
-		storage_cmd -> data[1]    = bd1;	// dateTime
-		storage_cmd -> data[2]    = bd2;	// flag
+		// Заполняем данные
+		storage_cmd -> data[0].length = 4;
+		storage_cmd -> data[0].addr = pionter_addr;
+		writeU32LE(storage_cmd -> data[0].data, value);
 		
+		// Заполняем время
+		storage_cmd -> data[1].length = sizeof(dt);
+		storage_cmd -> data[1].addr = pionter_addr + 4;
+		memcpy(storage_cmd -> data[1].data, &dt, storage_cmd -> data[1].length);
+
+		// Заполняем флаг
+		storage_cmd -> data[2].length = 1;
+		storage_cmd -> data[2].addr = pionter_addr + FLAG_DISTANCE;
+		storage_cmd -> data[2].data[0] = 0;
+
 		xQueueSend(*storage_event_queue, &storage_cmd, 0);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		deleteOrFreeCmd(cmd);
 	};
 	
 	this -> eventProcessors[SENSOR_UPDATE_SETTINGS] = [this] (sensor_cmd_t* cmd)
@@ -217,12 +193,7 @@ void SensorMenager :: fillFunctionMap()
 		xTimerChangePeriod(this -> timersMap[cmd -> sensor_id], this -> sensorsMap[cmd -> sensor_id] -> getInterval()* 1000, 0);
 		xTimerStart(this -> timersMap[cmd -> sensor_id], 0);
 		
-		if(cmd -> sync_semaphore == NULL) {
-			delete cmd;
-			return;
-		}
-		
-		xSemaphoreGive(cmd -> sync_semaphore);
+		deleteOrFreeCmd(cmd);
 	};
 }
 
@@ -299,6 +270,16 @@ void  SensorMenager :: deleteAllTimers()
 		xTimerStop(this -> timersMap[it -> first], 10);
 		xTimerDelete(this -> timersMap[it -> first], 10);
 	}	
+}
+
+void  SensorMenager :: deleteOrFreeCmd(sensor_cmd_t* cmd)
+{
+	if(cmd -> sync_semaphore == NULL) {
+		delete cmd;
+		return;
+	}
+		
+	xSemaphoreGive(cmd -> sync_semaphore);
 }
 
 
