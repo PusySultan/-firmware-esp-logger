@@ -35,6 +35,8 @@ struct DateTime
 
 	void toString(char* buffer)
 	{
+		checkParam();
+
 	    snprintf(buffer, 32, "%04d-%02d-%02d %02d:%02d:%02d",
 	             year + 2000, month, date, hours, minutes, seconds);
 	}
@@ -49,6 +51,19 @@ struct DateTime
         memcpy(this, in, sizeof(*this));
     }
     
+	void checkParam()
+	{
+		if(seconds >= 60) seconds = 59;
+		if(minutes >= 60) minutes = 59;
+		if(hours >= 24) hours = 23;
+
+		if(date < 1) date = 1;
+		if(date > 31) date = 30;
+
+		if(month < 1) month = 1;
+		if(month > 12) month = 12;
+	}
+
     static DateTime fromStringStatic(char dtStr[19])
     {
 		// 2026-04-12 14:08:49
