@@ -26,9 +26,7 @@ class SensorMenager final
 	    static void overrideInternalQueue(QueueHandle_t* queue);
 	    static void overrideStorageQueue(QueueHandle_t* queue);
 	    
-	private:
-		DateTime dt;
-		
+	private:		
 		// мапа лямбда функций
 		std::map<sensor_event_type_t, func> eventProcessors;
 			

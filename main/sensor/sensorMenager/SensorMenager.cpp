@@ -137,8 +137,10 @@ void SensorMenager :: fillFunctionMap()
 		uint32_t pionter_addr =  this -> sensorsMap[cmd -> sensor_id] -> getPointer();
 		
 		// Получаем дату и время
+		DateTime dt;
+		DateTimeSensor::getInstance().ds1302_getDateTime(&dt);
+		
 		char buffer[32];
-		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> dt);
 		dt.toString(buffer);
 		
 		printf("get val %" PRIu32" by sensor %i, by time: %s, save by addres: %" PRIu32 "\n", 
