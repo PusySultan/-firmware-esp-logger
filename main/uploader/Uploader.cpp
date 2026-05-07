@@ -113,15 +113,13 @@ void Uploader :: fillFunctionMap()
 		SensorsID currentId = TEMP_SENSOR_1_ID;
 		
 		do
-		{	
-			printf("new iteartion\n");
+		{
 			uploadDataByAddr(uploadAddr[currentId], data, dateTime);
 
 			if(!arrayContainsTrush(data, 4))
 			{
 				printf("data is correct by id %d\n", currentId);
 				if(STOP_UPOLAD) {
-					printf("BREAK FROM UPLOADER DATA\n");
 					break;
 				}
 				
@@ -144,7 +142,6 @@ void Uploader :: fillFunctionMap()
 
 			if(stableCycles >= 3) {
 				// Делаем несколько проходов
-				printf("BREAK FROM UPLOADER DATA\n");
 				break;
 			}
 
@@ -209,13 +206,10 @@ void Uploader :: fillFunctionMap()
 		}
 		
 		if(STOP_UPOLAD) return; 	 // Если вызвана остановка загрузки
-				
-		printf("UPLOAD BY ADDR\n");
 		
 		uint8_t data[4];
 		uint8_t dateTime[32];
 		SensorsID currentId = getSensorIdByAddr(cmd -> addr);
-		printf("upload sensor id %d addr: %" PRIu32 "\n", static_cast<uint8_t>(currentId), cmd -> addr);
 		
 		// Загружаем данные из памяти
 		uploadDataByAddr(cmd -> addr, data, dateTime);
