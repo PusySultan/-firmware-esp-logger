@@ -91,9 +91,9 @@ void EventMenager :: fillFunctionMap()
 		// this -> killMsgProcessor();
 		// this -> killNetwork();
 
-		// this -> saveDisabeEvent();
-		// this -> saveJobIntervalTime();
-		// this -> saveTotalJobTime();
+		this -> saveDisabeEvent();
+		this -> saveJobIntervalTime();
+		this -> saveTotalJobTime();
 
 		// this -> killStorage();
 

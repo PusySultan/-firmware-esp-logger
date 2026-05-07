@@ -51,8 +51,8 @@ void EventMenager :: saveDisabeEvent()
 	reg_event_off -> data_size = 2;
 
     reg_event_off -> data[0].addr = ADDR_EVENT_DEVICE_OFF;
-	reg_event_off -> data[0].length = sizeof(disableTime);
-	memcpy(reg_event_off -> data[0].data, &disableTime, sizeof(disableTime));
+	reg_event_off -> data[0].length = sizeof(DEVICE_EVENT_OFF);
+	writeU32LE(reg_event_off -> data[0].data, DEVICE_EVENT_OFF);
 
 	reg_event_off -> data[1].addr = ADDR_EVENT_DEVICE_OFF + reg_event_off -> data[0].length;
 	reg_event_off -> data[1].length = sizeof(disableTime);
