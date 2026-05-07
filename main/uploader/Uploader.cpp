@@ -340,7 +340,7 @@ void Uploader :: uploadDataByAddr(uint32_t addr, uint8_t* data, uint8_t* dt)
 	
 	memcpy(data, get_data_from_storage_cmd -> data[0].data, get_data_from_storage_cmd -> data[0].length);
 	memcpy(dt,   get_data_from_storage_cmd -> data[1].data, get_data_from_storage_cmd -> data[1].length);
-	
+
 	delete get_data_from_storage_cmd;
 }
 
