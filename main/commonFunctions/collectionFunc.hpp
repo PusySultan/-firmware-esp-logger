@@ -15,10 +15,10 @@ inline char* collection_to_string(collection_t coll)
 {
     switch (coll)
     {
-        case DEVICE_TEMP:  return "DeviceTemp";
-        case DEVICE_DUST:  return "DeviceDustiness";
-        case DEVICE_EVENT: return "DeviceEvent";
-        case SETTING:      return "Setting";
+        case DEVICE_TEMP:  return "DEVICE_TEMP";
+        case DEVICE_DUST:  return "DEVICE_DUST";
+        case DEVICE_EVENT: return "DEVICE_EVENT";
+        case SETTING:      return "SETTING";
         default:           return "UNKNOWN";
     }
 }
