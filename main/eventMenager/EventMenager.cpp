@@ -62,7 +62,7 @@ void EventMenager :: fillFunctionMap()
 
 		this -> createSensor(TEMP_SENSOR_1_ID);
 		this -> createSensor(TEMP_SENSOR_2_ID);
-		// this -> createSensor(TEMP_SENSOR_3_ID);
+		this -> createSensor(TEMP_SENSOR_3_ID);
 		// this -> createSensor(TEMP_SENSOR_C_ID);
 		this -> createSensor(DUST_SENSOR_1_ID);
 		// this -> createSensor(DUST_SENSOR_2_ID);
