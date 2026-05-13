@@ -26,10 +26,10 @@ inline char* collection_to_string(collection_t coll)
 inline collection_t string_to_collection(const char* name)
 {
     if (name == nullptr) return UNKNOW_COLLECTION;
-    if (strcmp(name, "DeviceTemp") == 0)  return DEVICE_TEMP;
-    if (strcmp(name, "DeviceDustiness") == 0)  return DEVICE_DUST;
-    if (strcmp(name, "DeviceEvent") == 0) return DEVICE_EVENT;
-    if (strcmp(name, "Setting") == 0)      return SETTING;
+    if (strcmp(name, "DEVICE_TEMP") == 0)  return DEVICE_TEMP;
+    if (strcmp(name, "DEVICE_DUST") == 0)  return DEVICE_DUST;
+    if (strcmp(name, "DEVICE_EVENT") == 0) return DEVICE_EVENT;
+    if (strcmp(name, "SETTING") == 0)      return SETTING;
     return UNKNOW_COLLECTION;
 }
 
