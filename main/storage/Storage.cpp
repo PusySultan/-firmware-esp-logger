@@ -29,15 +29,13 @@ Storage::~Storage ()
 
 esp_err_t Storage :: eventProcessor(storage_cmd_t* cmd)
 {
-	if(!cmd)
+	if(!cmd || (uint32_t)cmd < 0x3FF00000)
 	{
 		printf("error cmd in NULL (Storage.eventProcessor)\n");
-		
-		delete cmd;
 		return ESP_ERR_INVALID_ARG;
 	}
 	
-	if(cmd -> event_type < 0)
+	if(cmd -> event_type < 0)//40
 	{
 		printf("Bad commant empty cmd event type (Storage.eventProcessor)\n");
 		delete cmd;

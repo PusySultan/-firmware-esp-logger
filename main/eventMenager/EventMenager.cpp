@@ -75,6 +75,12 @@ void EventMenager :: fillFunctionMap()
 	
 	this -> eventProcessors[DEVICE_EVENT_OFF] = [this](event_cmd_t* cmd)
 	{
+		vTaskDelay(300 / portTICK_PERIOD_MS);
+		if(gpio_get_level(EVENT_VOLTAGE_OFF_PIN) == 1) {
+			printf("false shutdown\n");
+			return;
+		}
+
 		printf("\n\n\nStart kill processes (EventMenager.eventProcessors[DEVICE_EVENT_OFF])\n\n\n");
 		
 		DateTimeSensor::getInstance().ds1302_getDateTime(&this -> disableTime);

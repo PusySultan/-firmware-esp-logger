@@ -57,7 +57,7 @@ esp_err_t MulticastDNS :: findServerURL()
 			&results -> addr -> addr.u_addr.ip4, 
 			ipstr, 
 	 	    sizeof(ipstr));
-	  
+
 		sprintf(this -> server_url, "ws://%s:8080/controller", ipstr);
 				
 	  	break;
